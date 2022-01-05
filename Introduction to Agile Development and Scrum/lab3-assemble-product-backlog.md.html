@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://unpkg.com/@highlightjs/cdn-assets@10.7.1/styles/default.min.css">
+  </head>
+  <body>
+    <h1>Lab 3: Assemble your Product Backlog</h1>
+    <p><strong>Estimated time needed:</strong> 15 minutes</p>
+    <p>In this lab, you will create seven user stories based on the requirements given. The first four will be given to you so that you can just cut and paste to get familiar with ZenHub. The last three you will need to create by yourself. You will then prioritize these stories and move them into the appropriate pipelines on your kanban board.</p>
+    <h2>Objectives</h2>
+    <p>After completing this lab, you will be able to:</p>
+    <ol>
+      <li>Create new user stories using GitHub issues.</li>
+      <li>Prioritize the product backlog.</li>
+    </ol>
+    <hr>
+    <h2>Exercise 1 : Create new user stories using GitHub issues</h2>
+    <p>In this exercise, you will create the following user stories using ZenHub:</p>
+    <p><strong>Stories from the Lesson:</strong></p>
+    <p>Title: Need a service that has a counter</p>
+    <ul>
+      <li>As a User, I need a service that has a counter, So that I can keep track of how many times something was done.</li>
+    </ul>
+    <p>Title: Must allow multiple counters</p>
+    <ul>
+      <li>As a User, I need to have multiple counters, So that I can keep track of several counts at once.</li>
+    </ul>
+    <p>Title: Must persist counter across restarts</p>
+    <ul>
+      <li>As a Service Provider, I need the service to persist the last known count, So that users don't lose track of their counts after the service is restarted.</li>
+    </ul>
+    <p>Title: Counters can be reset</p>
+    <ul>
+      <li>As a System Administrator, I need the ability to reset the counter, So that I can redo counting from the start.</li>
+    </ul>
+    <p><strong>New Requirements:</strong></p>
+    <ul>
+      <li>Deploy service to the cloud.</li>
+      <li>Need the ability to remove a counter.</li>
+      <li>Need the ability to update a counter to a new value.</li>
+    </ul>
+    <p>You will use ZenHub to enter these stories as issues in GitHub using the template that you created in <a href="../lab_2/lab2-create-story-template.md">Lab 2</a>.</p>
+    <ol>
+      <li>
+        <p>
+          Goto <a href="http://app.zenhub.com/?utm_medium=Exinfluencer&#x26;utm_source=Exinfluencer&#x26;utm_content=000026UJ&#x26;utm_term=10006555&#x26;utm_id=NA-SkillsNetwork-Channel-SkillsNetworkCoursesIBMCD0116ENSkillsNetwork28298839-2021-01-01" target="_blank" rel="external">app.zenhub.com</a> and sign in with your GitHub account.
+          
+          <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0116EN-SkillsNetwork/labs/module_2/lab_3/images/lab3-zenhub-signin.png" alt="zenhub signin">
+        </p>
+      </li>
+      <li>
+        <p>
+          From your kanban board view, select <strong>New Issue</strong>.
+          
+          <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0116EN-SkillsNetwork/labs/module_2/lab_3/images/lab3-zenhub-select-new-issue.png" alt="new issue">
+        </p>
+      </li>
+      <li>
+        <p>
+          From the <strong>Template</strong> dropdown, select <strong>User Story</strong>.
+          
+          <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0116EN-SkillsNetwork/labs/module_2/lab_3/images/lab3-zenhub-template-dropdown.png" alt="select template">
+        </p>
+      </li>
+      <li>
+        <p>
+          Enter the title for the first story <strong>Need a service that has a counter</strong> and fill out just the user story section (i.e., As a, I need, So that) for now.
+          
+          <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0116EN-SkillsNetwork/labs/module_2/lab_3/images/lab3-zenhub-fillin-template.png" alt="fill in template">
+        </p>
+      </li>
+      <li>
+        <p>
+          Scroll to the bottom of the page and press <strong>Submit new Issue</strong>.
+          
+          <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0116EN-SkillsNetwork/labs/module_2/lab_3/images/lab3-zenhub-submit-new-issue.png" alt="submit new issue">
+        </p>
+      </li>
+      <li>
+        <p>
+          Press the <strong>X</strong> icon in the upper right corner to close the new issue. Note that it now shows up in your <strong>New Issues</strong> pipeline.
+          
+          <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0116EN-SkillsNetwork/labs/module_2/lab_3/images/lab3-zenhub-issue-submitted.png" alt="issue submitted">
+        </p>
+      </li>
+      <li>
+        <p>
+          Continue adding stories until all seven stories are created and your kanban board looks like this. Note that the first four stories are given to you from the lesson. You will need to create your own role, function, and benefit for the last three stories.
+          
+          <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0116EN-SkillsNetwork/labs/module_2/lab_3/images/lab3-zenhub-all-new-issues.png" alt="all new issues">
+        </p>
+      </li>
+    </ol>
+    <hr>
+    <h2>Exercise 2 : Prioritize the product backlog</h2>
+    <p>In this exercise, you will move issues between pipelines to recreate the kanban board from the video lesson <strong>Building the Product Backlog</strong>. This will simulate an initial starting point for our next lab on backlog refinement. Please note that you can move the issues between pipelines by simply dragging and dropping them from one pipeline to teh other.</p>
+    <ol>
+      <li>
+        <p>Move the <strong>Need a service that has a counter</strong> story to the top of the <strong>Product Backlog</strong> pipeline.</p>
+      </li>
+      <li>
+        <p>Move the <strong>Must allow multiple counters</strong> story to the <strong>Icebox</strong> pipeline.</p>
+      </li>
+      <li>
+        <p>Move the <strong>Must persist counter across restarts</strong> story to the bottom of the <strong>Product Backlog</strong> pipeline.</p>
+      </li>
+      <li>
+        <p>Move the <strong>Counters can be reset</strong> story to the bottom of the <strong>Product Backlog</strong> pipeline.</p>
+      </li>
+      <li>
+        <p>Leave the remaining stories in the <strong>New Issues</strong> pipeline for now. We will move them in a later lab.</p>
+      </li>
+    </ol>
+    <p>At the completion of this exercise, your kanban board should look like this:</p>
+    <p>
+      <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0116EN-SkillsNetwork/labs/module_2/lab_3/images/lab3-zenhub-finished-kanban.png" alt="finished kanban">
+    </p>
+    <h2>Summary</h2>
+    <p>You learned how to create new stories in ZenHub using Issues in GitHub and a User Story template. You also learned how to quickly prioritize your product backlog. You now have enough stories in your repository to start planning with ZenHub.</p>
+    <h2>Author(s)</h2>
+    <p><a href="https://www.coursera.org/instructor/johnrofrano?utm_medium=Exinfluencer&#x26;utm_source=Exinfluencer&#x26;utm_content=000026UJ&#x26;utm_term=10006555&#x26;utm_id=NA-SkillsNetwork-Channel-SkillsNetworkCoursesIBMCD0116ENSkillsNetwork28298839-2021-01-01" target="_blank" rel="external">John Rofrano</a></p>
+    <h2>Changelog</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Version</th>
+          <th>Changed by</th>
+          <th>Change Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>2021-08-03</td>
+          <td>0.1</td>
+          <td>John Rofrano</td>
+          <td>Initial version created</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+    <h2></h2>
+    <h3 align="center">© IBM Corporation 2021. All rights reserved.</h3>
+    <h3></h3>
+    <script>window.addEventListener('load', function() {
+snFaculty.inject();
+});</script>
+    <script src="https://skills-network-assets.s3.us.cloud-object-storage.appdomain.cloud/scripts/inject.43989f87.js"></script>
+    <script src="https://unpkg.com/@highlightjs/cdn-assets@10.7.1/highlight.min.js"></script>
+    <script src="https://unpkg.com/highlightjs-badge@0.1.9/highlightjs-badge.min.js"></script>
+  </body>
+</html>

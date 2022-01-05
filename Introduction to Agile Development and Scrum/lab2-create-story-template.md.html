@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://unpkg.com/@highlightjs/cdn-assets@10.7.1/styles/default.min.css">
+  </head>
+  <body>
+    <h1>Lab 2: Create an issue template in GitHub</h1>
+    <p><strong>Estimated time needed:</strong> 10 minutes</p>
+    <p>In this lab, you will create an issue template in GitHub that will help you to write well-formatted user stories in ZenHub.</p>
+    <h2>Objectives</h2>
+    <p>After completing this lab, you will be able to:</p>
+    <ol>
+      <li>Create an issue template in GitHub that contains the information required for writing good user stories.</li>
+    </ol>
+    <h2>Exercise 1 : Create an issue template in GitHub</h2>
+    <p>In this exercise, you will create an issue template in GitHub. This only needs to be done once for each new repository that you create.</p>
+    <ol>
+      <li>
+        <p>
+          Go to <a href="http://github.com" target="_blank" rel="external">GitHub.com</a> and select the <code>lab-agile-planning</code> repository that you created in <a href="./lab01-get-set-up-in-zenhub.md">Lab 1</a>.
+          
+          <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0116EN-SkillsNetwork/labs/module_2/lab_2/images/lab2-select-repository.png" alt="github home">.
+        </p>
+      </li>
+      <li>
+        <p>
+          From the repository page, select <strong>Settings</strong>.
+          
+          <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0116EN-SkillsNetwork/labs/module_2/lab_2/images/lab2-select-settings.png" alt="select settings">
+        </p>
+      </li>
+      <li>
+        <p>
+          Scroll down to the <strong>Features</strong> section and select <strong>Set up templates</strong>.
+          
+          <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0116EN-SkillsNetwork/labs/module_2/lab_2/images/lab2-select-setup-templates.png" alt="select setup templates">
+        </p>
+      </li>
+      <li>
+        <p>
+          From the dropdown list labeled <strong>Add template</strong> (1), select <strong>Custom template</strong> (2).
+          
+          <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0116EN-SkillsNetwork/labs/module_2/lab_2/images/lab2-select-custom-template.png" alt="select custom template">
+        </p>
+      </li>
+      <li>
+        <p>
+          Next to the <strong>Custom issue template</strong> entry, press the <strong>Preview and edit</strong> button.
+          
+          <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0116EN-SkillsNetwork/labs/module_2/lab_2/images/lab2-select-preview-edit.png" alt="select preview and edit">
+        </p>
+      </li>
+      <li>
+        <p>
+          Press the <strong>pencil</strong> icon to edit the template.
+          
+          <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0116EN-SkillsNetwork/labs/module_2/lab_2/images/lab2-edit-template.png" alt="select pencil">
+        </p>
+      </li>
+      <li>
+        <p>Copy the following markdown for the story template content:</p>
+        <pre> **As a** [role]  
+ **I need** [function]  
+ **So that** [benefit]  
+   
+ ### Details and Assumptions
+ * [document what you know]
+   
+ ### Acceptance Criteria  
+   
+ ```gherkin
+ Given [some context]
+ When [certain action is taken]
+ Then [the outcome of action is observed]
+ ```</pre>
+      </li>
+      <li>
+        <p>
+          Edit the <strong>Template name</strong> to be: <code>User Story</code>, give it an appropriate <strong>description</strong>, and paste the contents of the above markdown into the <strong>Template content</strong>
+          <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0116EN-SkillsNetwork/labs/module_2/lab_2/images/lab2-template-contents.png" alt="template contents">
+        </p>
+      </li>
+      <li>
+        <p>
+          Scroll to the top of the page and press the <strong>Propose changes</strong> button.
+          
+          <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0116EN-SkillsNetwork/labs/module_2/lab_2/images/lab2-propose-changes.png" alt="propose changes">
+        </p>
+      </li>
+      <li>
+        <p>
+          Press the <strong>Commit changes</strong> button to commit the change to your repository.
+          
+          <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0116EN-SkillsNetwork/labs/module_2/lab_2/images/lab2-commit-template-changes.png" alt="commit template changes">.
+        </p>
+      </li>
+      <li>
+        <p>
+          You should now have a new folder in your repository called <code>.github/ISSUE_TEMPLATES</code>, which will contain your new user story template.
+          
+          <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0116EN-SkillsNetwork/labs/module_2/lab_2/images/lab2-template-created.png" alt="template created">.
+        </p>
+      </li>
+    </ol>
+    <h2>Summary</h2>
+    <p>You now have an issue template that you can use for all of your GitHub repositories that you need to write stories for to use in ZenHub. When we create issues in future labs, this template will guide you through what information is needed to create your user story.</p>
+    <h2>Author(s)</h2>
+    <p><a href="https://www.coursera.org/instructor/johnrofrano?utm_medium=Exinfluencer&#x26;utm_source=Exinfluencer&#x26;utm_content=000026UJ&#x26;utm_term=10006555&#x26;utm_id=NA-SkillsNetwork-Channel-SkillsNetworkCoursesIBMCD0116ENSkillsNetwork28298839-2021-01-01" target="_blank" rel="external">John Rofrano</a></p>
+    <h2>Changelog</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Version</th>
+          <th>Changed by</th>
+          <th>Change Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>2021-08-05</td>
+          <td>0.1</td>
+          <td>John Rofrano</td>
+          <td>Initial version created</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+    <h2></h2>
+    <h3 align="center">© IBM Corporation 2021. All rights reserved.</h3>
+    <h3></h3>
+    <script>window.addEventListener('load', function() {
+snFaculty.inject();
+});</script>
+    <script src="https://skills-network-assets.s3.us.cloud-object-storage.appdomain.cloud/scripts/inject.43989f87.js"></script>
+    <script src="https://unpkg.com/@highlightjs/cdn-assets@10.7.1/highlight.min.js"></script>
+    <script src="https://unpkg.com/highlightjs-badge@0.1.9/highlightjs-badge.min.js"></script>
+  </body>
+</html>

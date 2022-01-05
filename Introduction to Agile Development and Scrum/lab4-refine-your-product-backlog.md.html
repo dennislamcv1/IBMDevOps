@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://unpkg.com/@highlightjs/cdn-assets@10.7.1/styles/default.min.css">
+  </head>
+  <body>
+    <h1>Lab 4: Refine your Product Backlog</h1>
+    <p><strong>Estimated time needed:</strong> 20 minutes</p>
+    <p>In this lab, you will follow the steps of conducting a backlog refinement meeting. You will be the product owner getting the product backlog ready for your next sprint planning meeting. This involves grooming the stories we created in the last lab to make them <em>sprint ready</em>.</p>
+    <h2>Objectives</h2>
+    <p>After completing this lab, you will be able to:</p>
+    <ol>
+      <li>Triage new issues.</li>
+      <li>Make stories sprint ready.</li>
+      <li>Create new labels in GitHub.</li>
+      <li>Add labels to stories.</li>
+    </ol>
+    <hr>
+    <h2>Initial State</h2>
+    <p>At the completion of <a href="../lab_3/lab3-assemble-product-backlog.md">Lab 3</a>, your kanban board should look like this:</p>
+    <p>
+      <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0116EN-SkillsNetwork/labs/module_2/lab_4/images/lab4-zenhub-starting-kanban.png" alt="finished kanban">
+    </p>
+    <p><strong>New Issues:</strong></p>
+    <ul>
+      <li>Deploy service to the cloud</li>
+      <li>Need the ability to remove a counter</li>
+      <li>Need ability to update a counter to a new value</li>
+    </ul>
+    <p><strong>Icebox:</strong></p>
+    <ul>
+      <li>Must allow multiple counters</li>
+    </ul>
+    <p><strong>Product Backlog:</strong></p>
+    <ul>
+      <li>Need a service that has a counter</li>
+      <li>Must persist counter across restarts</li>
+      <li>Counters can be reset</li>
+    </ul>
+    <hr>
+    <h2>Exercise 1 : Triage new issues</h2>
+    <p>In this exercise, you will take all of the stories in the <strong>New Issues</strong> pipeline and move them to an appropriate pipeline or reject them.</p>
+    <ol>
+      <li>
+        <p>
+          Go to <a href="http://app.zenhub.com/?utm_medium=Exinfluencer&#x26;utm_source=Exinfluencer&#x26;utm_content=000026UJ&#x26;utm_term=10006555&#x26;utm_id=NA-SkillsNetwork-Channel-SkillsNetworkCoursesIBMCD0116ENSkillsNetwork28298839-2021-01-01" target="_blank" rel="external">app.zenhub.com</a> and sign in with your GitHub account and bring up your kanban board.
+          
+          <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0116EN-SkillsNetwork/labs/module_2/lab_4/images/lab4-zenhub-initial-board.png" alt="initial kanban">
+        </p>
+      </li>
+      <li>
+        <p>
+          The first new issue is <strong>Deploy service to the cloud</strong>. We want to do that after adding persistence, so move that to the <strong>Product Backlog</strong> pipeline under <strong>Must persist counter across restarts</strong>.
+          
+          <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0116EN-SkillsNetwork/labs/module_2/lab_4/images/lab4-zenhub-move-issue-5.png" alt="new issue">
+        </p>
+      </li>
+      <li>
+        <p>
+          The next new issue is <strong>Need the ability to remove a counter</strong>. We only have one counter and we wouldn't want to remove that, so let's move that to the <strong>Icebox</strong> after <strong>Must allow multiple counters</strong>.
+          
+          <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0116EN-SkillsNetwork/labs/module_2/lab_4/images/lab4-zenhub-move-issue-6.png" alt="new issue">
+        </p>
+      </li>
+      <li>
+        <p>
+          The last new issue is <strong>Need ability to update a counter to a new value</strong>. We might want to do that as an enhancement after we can reset the counter, so let's move that to the <strong>Product Backlog</strong> after <strong>Counters can be reset</strong>.
+          
+          <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0116EN-SkillsNetwork/labs/module_2/lab_4/images/lab4-zenhub-move-issue-7.png" alt="new issue">
+        </p>
+      </li>
+    </ol>
+    <p>You have now completed new issue triage and can start making the stories in the <strong>Product Backlog</strong> pipeline sprint ready.</p>
+    <hr>
+    <h2>Exercise 2 : Make stories sprint ready</h2>
+    <p>In this exercise, you will add more details to the stories in the <strong>Product Backlog</strong> that you feel might make it into the next sprint. You will be provided with the details for two of the stories. You must provide the details for the other three.</p>
+    <ol>
+      <li>
+        <p>
+          Select the first story at the top of the <strong>Product Backlog</strong> pipeline to open it. Then press the <strong>Edit</strong> button to edit the issue.
+          
+          <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0116EN-SkillsNetwork/labs/module_2/lab_4/images/lab4-zenhub-edit-issue-1.png" alt="edit issue 1">
+        </p>
+      </li>
+      <li>
+        <p>Edit the <strong>Details and Assumptions</strong> to let developers know what we know, and edit the <strong>Acceptance Criteria</strong> to make sure that everyone understands what the definition of "<em>done</em>" is. Make your story look like this one:<br>
+          <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0116EN-SkillsNetwork/labs/module_2/lab_4/images/lab4-zenhub-content-issue-1.png" alt="issue 1 content">
+        </p>
+      </li>
+      <li>
+        <p>
+          When you are finished editing, press the <strong>Update</strong> button to save the edits.
+          
+          <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0116EN-SkillsNetwork/labs/module_2/lab_4/images/lab4-zenhub-update-issue-1.png" alt="update issue 1">
+        </p>
+      </li>
+      <li>
+        <p>
+          Close the window by pressing the <strong>X</strong> icon.
+          
+          <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0116EN-SkillsNetwork/labs/module_2/lab_4/images/lab4-zenhub-refined-issue-1.png" alt="refined issue 1">
+        </p>
+      </li>
+      <li>
+        <p>
+          Edit the <strong>Must persist counter across restarts</strong> story in the same way and make it look like the following:
+          
+          <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0116EN-SkillsNetwork/labs/module_2/lab_4/images/lab4-zenhub-content-issue-2.png" alt="issue 1 content">
+        </p>
+      </li>
+      <li>
+        <p>Edit the <strong>Deploy service to the cloud</strong> story and make up your own <strong>Details and Assumptions</strong>, and <strong>Acceptance Criteria</strong>.</p>
+      </li>
+      <li>
+        <p>Edit the <strong>Counters can be reset</strong> story and make up your own details, assumptions, and acceptance criteria.</p>
+      </li>
+      <li>
+        <p>Edit the <strong>Need ability to update a counter to a new value</strong> story and make up your own details, assumptions, and acceptance criteria.</p>
+      </li>
+    </ol>
+    <p>At the completion of this exercise, your kanban board should have sufficient details in all of the stories in the <strong>Product Backlog</strong> to make them sprint ready.</p>
+    <hr>
+    <h2>Exercise 3 : Create new labels in GitHub</h2>
+    <p>In this exercise, you will create a new label in GitHub called <code>technical debt</code> to flag those stories that provide no visible customer value but must be completed in order to continue development.</p>
+    <ol>
+      <li>
+        <p>
+          Go to <a href="http://www.github.com" target="_blank" rel="external">github.com</a> and select your <strong>lab-agile-planning</strong> repository.
+          
+          <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0116EN-SkillsNetwork/labs/module_2/lab_4/images/lab4-github-select-repo.png" alt="select reo">
+        </p>
+      </li>
+      <li>
+        <p>
+          From your repository page, select the <strong>Issues</strong> tab.
+          
+          <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0116EN-SkillsNetwork/labs/module_2/lab_4/images/lab4-github-select-issues.png" alt="select issues">
+        </p>
+      </li>
+      <li>
+        <p>
+          From the issues page, select the <strong>Labels</strong> button.
+          
+          <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0116EN-SkillsNetwork/labs/module_2/lab_4/images/lab4-github-select-labels.png" alt="select labels">
+        </p>
+      </li>
+      <li>
+        <p>
+          From the labels page, select the <strong>New label</strong> button.
+          
+          <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0116EN-SkillsNetwork/labs/module_2/lab_4/images/lab4-github-select-new-label.png" alt="new label">
+        </p>
+      </li>
+      <li>
+        <p>
+          In the new label section: (1) set the <strong>Label name</strong> to <code>technical debt</code>, (2) set the <strong>Color</strong> to <code>yellow</code> (<code>#FBCA04</code>), then (3) press the <strong>Create label</strong> button.
+          
+          <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0116EN-SkillsNetwork/labs/module_2/lab_4/images/lab4-github-label-technical-debt.png" alt="technical debt">
+        </p>
+      </li>
+      <li>
+        <p>
+          You should now see a yellow <code>technical debt</code> label that we can use to annotate our stories.
+          
+          <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0116EN-SkillsNetwork/labs/module_2/lab_4/images/lab4-github-label-complete.png" alt="label complete">
+        </p>
+      </li>
+    </ol>
+    <hr>
+    <h2>Exercise 4 : Add labels to stories</h2>
+    <p>In this exercise, you will go back to ZenHub and add labels to the stories in the <strong>Product Backlog</strong> to further make them sprint ready. You will also use our new label called <code>technical debt</code> to flag those stories that provide no visible customer value but must be completed to continue development.</p>
+    <ol>
+      <li>
+        <p>
+          Go to ZenHub and select the first story at the top of the <strong>Product Backlog</strong> pipeline to open it. Then press the <strong>Gear</strong> icon next to <strong>Labels</strong> to assign a label.
+          
+          <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0116EN-SkillsNetwork/labs/module_2/lab_4/images/lab4-zenhub-labels-open.png" alt="open labels">
+        </p>
+      </li>
+      <li>
+        <p>
+          Our first story is an enhancement to our product. From the label menu, select <strong>enhancement</strong> to reflect this.
+          
+          <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0116EN-SkillsNetwork/labs/module_2/lab_4/images/lab4-zenhub-labels-assign.png" alt="assign labels">
+        </p>
+      </li>
+      <li>
+        <p>
+          Click anywhere off of the labels menu to close it. You should now see that the label <strong>enhancement</strong> has been assigned to this story.
+          
+          <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0116EN-SkillsNetwork/labs/module_2/lab_4/images/lab4-zenhub-labels-enhancement.png" alt="assign labels">
+        </p>
+      </li>
+      <li>
+        <p>Select each of the following stories in the <strong>Product Backlog</strong> pipeline and assign them the corresponding labels.</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Story Title</th>
+              <th>Label</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Must persist counter across restarts</td>
+              <td>enhancement</td>
+            </tr>
+            <tr>
+              <td>Deploy service to the cloud</td>
+              <td>technical debt</td>
+            </tr>
+            <tr>
+              <td>Counters can be reset</td>
+              <td>enhancement</td>
+            </tr>
+            <tr>
+              <td>Need ability to update a counter to new value</td>
+              <td>enhancement</td>
+            </tr>
+          </tbody>
+        </table>
+      </li>
+    </ol>
+    <p>At the end of this exercise, your kanban board should look like this:</p>
+    <p>
+      <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0116EN-SkillsNetwork/labs/module_2/lab_4/images/lab4-zenhub-labeled-kanban.png" alt="labeled kanban">
+    </p>
+    <h2>Summary</h2>
+    <p>You learned how to triage new issues, add detail to stories to make them sprint ready, create new labels, and assign labels to stories in preparation for a sprint planning meeting.</p>
+    <h2>Author(s)</h2>
+    <p><a href="https://www.coursera.org/instructor/johnrofrano?utm_medium=Exinfluencer&#x26;utm_source=Exinfluencer&#x26;utm_content=000026UJ&#x26;utm_term=10006555&#x26;utm_id=NA-SkillsNetwork-Channel-SkillsNetworkCoursesIBMCD0116ENSkillsNetwork28298839-2021-01-01" target="_blank" rel="external">John Rofrano</a></p>
+    <h2>Changelog</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Version</th>
+          <th>Changed by</th>
+          <th>Change Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>2021-08-06</td>
+          <td>0.1</td>
+          <td>John Rofrano</td>
+          <td>Initial version created</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+    <h2></h2>
+    <h3 align="center">© IBM Corporation 2021. All rights reserved.</h3>
+    <h3></h3>
+    <script>window.addEventListener('load', function() {
+snFaculty.inject();
+});</script>
+    <script src="https://skills-network-assets.s3.us.cloud-object-storage.appdomain.cloud/scripts/inject.43989f87.js"></script>
+    <script src="https://unpkg.com/@highlightjs/cdn-assets@10.7.1/highlight.min.js"></script>
+    <script src="https://unpkg.com/highlightjs-badge@0.1.9/highlightjs-badge.min.js"></script>
+  </body>
+</html>
