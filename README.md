@@ -21,9 +21,9 @@ Throughout the courses in this Professional Certificate,  you will develop a por
 
 You will: 
 
-    Create applications using Python programming language, using different programming constructs and logic, including functions, REST APIs, and various Python libraries.
-    Develop Linux Shell Scripts using Bash and automate repetitive tasks
-    Create projects on GitHub and work with Git commands
-    Build  and deploy applications composed of several microservices and deploy  them to cloud using containerization tools (such as Docker, Kubernetes,  and OpenShift); and serverless technologies
-    Employ various tools for automation, continuous integration (CI) and  continuous deployment (CD) of software including Chef, Puppet, GitHub  Actions, Tekton and Travis.
-    Secure and Monitor your applications and cloud deployments using tools like sysdig and Prometheus.
+- Create applications using Python programming language, using different programming constructs and logic, including functions, REST APIs, and various Python libraries.
+- Develop Linux Shell Scripts using Bash and automate repetitive tasks
+- Create projects on GitHub and work with Git commands
+- Build  and deploy applications composed of several microservices and deploy  them to cloud using containerization tools (such as Docker, Kubernetes,  and OpenShift); and serverless technologies
+- Employ various tools for automation, continuous integration (CI) and  continuous deployment (CD) of software including Chef, Puppet, GitHub  Actions, Tekton and Travis.
+- Secure and Monitor your applications and cloud deployments using tools like sysdig and Prometheus.
