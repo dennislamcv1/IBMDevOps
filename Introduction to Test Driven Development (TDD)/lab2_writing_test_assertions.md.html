@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://unpkg.com/@highlightjs/cdn-assets@10.7.1/styles/default.min.css">
+  </head>
+  <body>
+    <p>::page{title="Hands-On Lab: Writing Test Assertions"}</p>
+    <p><strong>Estimated time needed:</strong> 30 minutes</p>
+    <p>Welcome to the hands-on lab on <strong>Writing Test Assertions</strong>. We use assertions as checks to determine if the results of our test have passed or failed: True means passed and False means failed. What’s useful about assertions is that they raise an exception if they evaluate to False, marking the test as failed.</p>
+    <p>In this lab, you will learn how to write test assertions for test cases.</p>
+    <h2>Learning Objectives</h2>
+    <p>After completing this lab, you will be able to:</p>
+    <ul>
+      <li>Run test cases with Nose</li>
+      <li>Identify failing test cases</li>
+      <li>Write unit tests using assertions</li>
+    </ul>
+    <p>::page{title="Set Up the Lab Environment"}</p>
+    <p>You have a little preparation to do before you can start the lab.</p>
+    <h2>Open a Terminal</h2>
+    <p>Open a terminal window by using the menu in the editor: Terminal > New Terminal.</p>
+    <p>
+      <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0241EN-SkillsNetwork/labs/module2/images/01_terminal.png" alt="Terminal" title="Terminal">
+    </p>
+    <p>In the terminal, if you are not already in the <code>/home/projects</code> folder, change to your project folder now.</p>
+    <pre><code class="hljs language-bash"><span class="hljs-built_in">cd</span> /home/project
+</code></pre>
+    <h2>Clone the Code Repo</h2>
+    <p>Now get the code that you need to test. To do this, use the <code>git clone</code> command to clone the git repository:</p>
+    <pre><code class="hljs language-bash">git <span class="hljs-built_in">clone</span> https://github.com/ibm-developer-skills-network/duwjx-tdd_bdd_PracticeCode.git
+</code></pre>
+    <p>Your output should look similar to the image below:</p>
+    <p>
+      <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0241EN-SkillsNetwork/labs/module2/images/01_git_clone.png" alt="Git Clone" title="Git Clone">
+    </p>
+    <h2>Change into the Lab Folder</h2>
+    <p>Once you have cloned the repository, change to the lab directory.</p>
+    <pre><code class="hljs language-bash"><span class="hljs-built_in">cd</span> duwjx-tdd_bdd_PracticeCode/labs/02_writing_test_assertions/
+</code></pre>
+    <p>List the contents of this directory to see the artifacts for this lab.</p>
+    <pre><code class="hljs language-bash">ls -l
+</code></pre>
+    <p>The directory should look like the listing below:</p>
+    <p>
+      <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0241EN-SkillsNetwork/labs/module2/images/02_ls.png" alt="List files" title="List files">
+    </p>
+    <blockquote>
+      <p>You must have a few exercise files that you will be running in the steps to follow.</p>
+    </blockquote>
+    <p>The final preparation step is to use <code>pip</code> to install the Python packages needed for the lab:</p>
+    <pre><code class="hljs language-bash">pip install -r requirements.txt
+</code></pre>
+    <p>You are now ready to start the lab.</p>
+    <h3>Optional</h3>
+    <p>If working in the terminal becomes difficult because the command prompt is very long, you can shorten the prompt using the following command:</p>
+    <pre><code class="hljs language-bash"><span class="hljs-built_in">export</span> PS1=<span class="hljs-string">"[\[\033[01;32m\]\u\[\033[00m\]: \[\033[01;34m\]\W\[\033[00m\]]\$ "</span>
+</code></pre>
+    <p>::page{title="Working with the test files"}</p>
+    <p>You’re going to use two files from the lab folder: <code>stack.py</code> and <code>test_stack.py</code>.</p>
+    <ul>
+      <li><code>stack.py</code> has the code you want to test.</li>
+      <li><code>test_stack.py</code> has the test skeleton with test cases for <code>push()</code>, <code>pop()</code>, <code>peek()</code>, and <code>is empty()</code> methods. Currently, each test raises an exception.</li>
+    </ul>
+    <p>To complete this lab, you will edit the test cases in the <code>test_stack.py</code> file and supply the proper implementation.</p>
+    <p>Open <code>test_stack.py</code> in the editor. To open the editor, click the button below.</p>
+    <p>::openFile{path="/home/project/duwjx-tdd_bdd_PracticeCode/labs/02_writing_test_assertions/test_stack.py"}</p>
+    <p>::page{title="Review: The Stack"}</p>
+    <p>Before you write test cases, review the methods that the <code>Stack</code> class implements:</p>
+    <pre><code class="hljs language-python"><span class="hljs-string">"""Implements a Stack data structure"""</span>
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Stack</span>:</span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">push</span>(<span class="hljs-params">self, data: <span class="hljs-type">Any</span></span>) -> <span class="hljs-literal">None</span>:</span> 
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">pop</span>(<span class="hljs-params">self</span>) -> <span class="hljs-type">Any</span>:</span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">peek</span>(<span class="hljs-params">self</span>) -> <span class="hljs-type">Any</span>:</span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">is_empty</span>(<span class="hljs-params">self</span>) -> <span class="hljs-built_in">bool</span>:</span>
+</code></pre>
+    <table>
+      <thead>
+        <tr>
+          <th align="left">Function</th>
+          <th align="left">Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td align="left"><code>push()</code></td>
+          <td align="left">Adds an item onto the <strong>top</strong> of the stack</td>
+        </tr>
+        <tr>
+          <td align="left"><code>pop()</code></td>
+          <td align="left">Removes the item at the <strong>top</strong> of the stack and returns that item’s value</td>
+        </tr>
+        <tr>
+          <td align="left"><code>peek()</code></td>
+          <td align="left">Returns the value of the item at the <strong>top</strong> of the stack, but leaves the item on the stack</td>
+        </tr>
+        <tr>
+          <td align="left"><code>is_empty()</code></td>
+          <td align="left">Returns <code>True</code> if the stack is empty, but returns <code>False</code> otherwise</td>
+        </tr>
+      </tbody>
+    </table>
+    <blockquote>
+      <p>Notice that all of the methods except <code>is_empty()</code> operate on the item at the <strong>top</strong> of the stack. Therefore, for your test cases to be thorough, two or more items must be on the stack to ensure that you are manipulating the <strong>top</strong> item and not the <strong>bottom</strong> item.</p>
+    </blockquote>
+    <p>::page{title="Running nosetests"}</p>
+    <p>Before writing any code, you should always check that the test cases are passing. Otherwise, if they fail, you won't know if <em>you</em> broke the code or if someone or something else broke the code before you started.</p>
+    <p>Run <code>nosetests</code> to see what these test cases return:</p>
+    <pre><code class="hljs language-bash">nosetests
+</code></pre>
+    <p>
+      <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0241EN-SkillsNetwork/labs/module2/images/02_nose_exception.png" alt="Nose exceptions" title="Nose exceptions">
+    </p>
+    <p>Scroll up in the terminal to see that all test cases are listed in <span style="color:red;">red</span>, meaning they failed. They failed because they all simply raise a "not implemented" exception. This is to remind you of where you need to add new test cases.</p>
+    <p>
+      <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0241EN-SkillsNetwork/labs/module2/images/02_nose_exception2.png" alt="Nose_exception 2" title="Nose exception 2">
+    </p>
+    <p>The output shows that each test case has thrown an exception as expected. So now you need to write some code to make these test cases pass.</p>
+    <p>::page{title="Finding the first error"}</p>
+    <p>Nosetests has an option <code>--stop</code> that will stop running tests at the first failing test case. You will use this option throughout this lab to find the next failing test case.</p>
+    <p>Run <code>nosetests --stop</code> to find out which test you should work on first:</p>
+    <pre><code class="hljs language-bash">nosetests --stop
+</code></pre>
+    <p>Nosetests stops at the first failing test case which is <span style="color:red;"><strong>Test if the stack is empty</strong></span></p>
+    <p>
+      <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0241EN-SkillsNetwork/labs/module2/images/02_nose_is_empty_fail.png" alt="Is empty failed" title="Is empty failed">
+    </p>
+    <blockquote>
+      <p>Notice that <strong>"Test if the stack is empty"</strong> is not the first test case in <code>test_stack.py</code>. Nose runs tests in a pseudo-random order. This is to ensure that test cases do not affect the order of execution or depend on it to work.</p>
+    </blockquote>
+    <p>It’s time to write that test case.</p>
+    <p>::page{title="Step 1: Testing the is_empty() method"}</p>
+    <p>Your first failing test case is <strong>Test if the stack is empty</strong>, which is implemented in the <code>test_is_empty()</code> method. This method returns <code>True</code> if the stack is empty and <code>False</code> if it is not empty. You must test both outcomes to ensure that both scenarios are tested.</p>
+    <h2>Your Task</h2>
+    <p>Write a test case that tests both possible outcomes of <code>is_empty()</code>.</p>
+    <p>If you view the <code>setUp()</code> method, you’ll notice that it creates a new <code>Stack</code>. The initial stack should be empty, so your first assertion could check that. But confirming that <code>is_empty()</code> returns <code>True</code> when the stack is empty isn't enough; you also need to confirm that the method returns <code>False</code> when the stack <em>isn't</em> empty. You need both assertions to test all possible outcomes.</p>
+    <details>
+      <summary>Click here for a hint.</summary>Here is an outline of the code you’ll use.
+      <ol>
+        <li>Assert that the stack is initially empty.</li>
+        <li>Push a value onto the stack.</li>
+        <li>Assert that the stack is no longer empty.</li>
+      </ol>
+    </details>
+    <h2>Solution</h2>
+    <details>
+      <summary>Click here for the answer.</summary>Copy the below code and use it to replace the `test_is_empty()` function. Be sure to indent properly:
+      <pre><code class="hljs language-python">    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">test_is_empty</span>(<span class="hljs-params">self</span>):</span>
+        <span class="hljs-string">"""Test if the stack is empty"""</span>
+        self.assertTrue(self.stack.is_empty())
+        self.stack.push(<span class="hljs-number">5</span>)
+        self.assertFalse(self.stack.is_empty())
+</code></pre>
+    </details>
+    <h2>Test Your Solution</h2>
+    <p>Run <code>nosetests --stop</code> again and note whether <code>test_is_empty()</code> passes:</p>
+    <pre><code class="hljs language-bash">nosetests --stop
+</code></pre>
+    <p>
+      <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0241EN-SkillsNetwork/labs/module2/images/02_empty_nose.png" alt="Is Empty passing" title="Is Empty passing">
+    </p>
+    <p>You should find that</p>
+    <ul>
+      <li><span style="color:Lime;"><strong>Test if the stack is empty</strong></span> passed and</li>
+      <li><span style="color:red;"><strong>Test peeking at the top the stack</strong></span> is your next failing test case.</li>
+    </ul>
+    <p>You’ll work on <strong>Test peeking at the top the stack</strong> next.</p>
+    <p>::page{title="Step 2: Testing the peek() method"}</p>
+    <p>The next test case that you will implement is the <code>test_peek()</code> method.</p>
+    <p>The <code>peek()</code> method returns the value at the top of the stack. It is non-destructive and does not remove the value like <code>pop()</code> does. If you call <code>peek()</code> several times in a row without altering the stack, it should return the same value every time.</p>
+    <h2>Your Task</h2>
+    <p>Write a test case for <code>peek()</code>.</p>
+    <p>To test <code>peek()</code> you need to have something on the stack. First you need to <code>push()</code> a value onto the stack. But does that give you enough for a useful test case? <code>peek()</code> should return the value at the top of the stack. But if the stack only has one value, the top and the bottom are the same value. How do you know that <code>peek()</code> is not returning the value at the bottom of the stack? You need to push a second value to make the bottom value and the top value different. Then you must assert that <code>peek()</code> returns that last value that you pushed onto the stack.</p>
+    <details>
+      <summary>Click here for a hint.</summary>Here is an outline of the code you’ll use.
+      <ol>
+        <li>Push two values onto the stack.</li>
+        <li>Assert that <code>peek()</code> returns the last value pushed.</li>
+      </ol>
+    </details>
+    <h2>Solution</h2>
+    <details>
+      <summary>Click here for the answer.</summary>Copy the below code and use it to replace the `test_peek()` function. Be sure to indent properly:
+      <pre><code class="hljs language-python">    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">test_peek</span>(<span class="hljs-params">self</span>):</span>
+        <span class="hljs-string">"""Test peeking at the top the stack"""</span>
+        self.stack.push(<span class="hljs-number">3</span>)
+        self.stack.push(<span class="hljs-number">5</span>)
+        self.assertEqual(self.stack.peek(), <span class="hljs-number">5</span>)
+</code></pre>
+    </details>
+    <h2>Test Your Solution</h2>
+    <p>Let's run <code>nosetests --stop</code> again and see if <code>test_peek()</code> passes:</p>
+    <pre><code class="hljs language-bash">nosetests --stop
+</code></pre>
+    <p>
+      <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0241EN-SkillsNetwork/labs/module2/images/02_peek_nose.png" alt="Peek nose passed" title="Peek nose passed">
+    </p>
+    <p>You should find that</p>
+    <ul>
+      <li><span style="color:Lime;"><strong>Test peeking at the top the stack</strong></span> passed and</li>
+      <li><span style="color:Red;"><strong>Test popping an item of off the stack</strong></span> is your next failing test case.</li>
+    </ul>
+    <p>You’ll work on <strong>Test popping an item of off the stack</strong> next.</p>
+    <p>::page{title="Step 3: Testing the pop() method"}</p>
+    <p>The next test case that you will implement is the <code>test_pop()</code> method.</p>
+    <p>The <code>pop()</code> method "pops off" or "removes" the value on top of the stack and then returns that value. To test this method, pushing just one value onto the stack isn’t good enough; the top and bottom would be the same. Therefore, just like when you tested <code>peek()</code>, you need to push two values onto the stack. That way, the stack has two values, and the top and bottom of the stack don't point to the same value.</p>
+    <h2>Your Task</h2>
+    <p>Write a test case for <code>pop()</code>.</p>
+    <p>To test <code>pop()</code> you need something on the stack to remove. First you need to <code>push()</code> a value onto the stack. But does that give you enough for a useful test case? <code>pop()</code> should return the value at the top of the stack and return it. But if the stack only has one value, the top and the bottom are the same value. How do you know that <code>pop()</code> is not returning the value at the bottom of the stack?</p>
+    <p>This is the same problem that you confronted when testing <code>peek()</code>, and it has the same solution. You need to push a second value to make the bottom value and the top value different. Then you must assert that <code>pop ()</code> returns that last value that you pushed onto the stack.</p>
+    <p>You also need to test that the item was removed. Remember that <code>peek()</code> will return the value at the top of the stack. Therefore, you can assert that calling <code>peek()</code> after <code>pop()</code> will return the previous value on the stack. This value should now be at the top.</p>
+    <details>
+      <summary>Click here for a hint.</summary>Here is an outline of the code you’ll use:
+      <ol>
+        <li>Push two values onto the stack.</li>
+        <li>Pop off a value and assert that it was the last value that you pushed.</li>
+        <li>Assert that <code>peek()</code> now returns the previous value pushed.</li>
+        <li>(Optional) To further test that <code>pop()</code> will remove the last value on the stack, you can call <code>pop()</code> again and then assert that the stack is now empty.</li>
+      </ol>
+    </details>
+    <h2>Solution</h2>
+    <details>
+      <summary>Click here for the answer.</summary>Copy the below code and use it to replace the `test_pop()` function. Be sure to indent properly:
+      <pre><code class="hljs language-python">    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">test_pop</span>(<span class="hljs-params">self</span>):</span>
+        <span class="hljs-string">"""Test popping an item of off the stack"""</span>
+        self.stack.push(<span class="hljs-number">3</span>)
+        self.stack.push(<span class="hljs-number">5</span>)
+        self.assertEqual(self.stack.pop(), <span class="hljs-number">5</span>)
+        self.assertEqual(self.stack.peek(), <span class="hljs-number">3</span>)
+        self.stack.pop()
+        self.assertTrue(self.stack.is_empty())
+</code></pre>
+    </details>
+    <h2>Test Your Solution</h2>
+    <p>Let's run <code>nosetests --stop</code> again and see if <code>test_peek()</code> passes:</p>
+    <pre><code class="hljs language-bash">nosetests --stop
+</code></pre>
+    <p>
+      <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0241EN-SkillsNetwork/labs/module2/images/02_pop_nose.png" alt="Pop Nose passing" title="Pop Nose passing">
+    </p>
+    <p>You should find that</p>
+    <ul>
+      <li><span style="color:Lime;"><strong>Test popping an item of off the stack</strong></span> passed and</li>
+      <li><span style="color:Red;"><strong>Test pushing an item into the stack</strong></span> is the next failing test case.</li>
+    </ul>
+    <p>You’ll work on <strong>Test pushing an item into the stack</strong> next.</p>
+    <p>::page{title="Step 4: Testing the push() method"}</p>
+    <p>The last test case you will implement is the <code>test_push()</code> method.</p>
+    <p>The <code>push()</code> method adds a value onto the top of the stack, and the stack grows with every new value pushed onto it. When you test this method, you should ensure that the value is added to the top of the stack, not the bottom.</p>
+    <h2>Your Task</h2>
+    <p>Write a test case for <code>push()</code>.</p>
+    <p>You will need to invoke the <code>push()</code> function and then assert that it behaved correctly. Then you can assert that if you <code>peek()</code> at the stack, <code>peek()</code> returns the value that you just pushed. Alternatively, you can assert that if you <code>pop()</code> the stack, <code>pop()</code> returns the value that you just pushed. Either of these assertions will do.</p>
+    <details>
+      <summary>Click here for a hint.</summary>Here is an outline of the code you’ll use:
+      <ol>
+        <li>Push a value onto the stack.</li>
+        <li>Assert that peeking at the stack returns that value.</li>
+      </ol>
+    </details>
+    <h2>Solution</h2>
+    <details>
+      <summary>Click here for the answer.</summary>Copy the below code and use it to replace the `test_push` function. Be sure to indent properly:
+      <pre><code class="hljs language-python">    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">test_push</span>(<span class="hljs-params">self</span>):</span>
+        <span class="hljs-string">"""Test pushing an item into the stack"""</span>
+        self.stack.push(<span class="hljs-number">3</span>)
+        self.assertEqual(self.stack.peek(), <span class="hljs-number">3</span>)
+        self.stack.push(<span class="hljs-number">5</span>)
+        self.assertEqual(self.stack.peek(), <span class="hljs-number">5</span>)
+</code></pre>
+    </details>
+    <h2>Test Your Solution</h2>
+    <p>Run <code>nosetests --stop</code> one last time and see if <code>test_push()</code> passes:</p>
+    <pre><code class="hljs language-bash">nosetests --stop
+</code></pre>
+    <p>
+      <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0241EN-SkillsNetwork/labs/module2/images/02_push_nose.png" alt="All Passing" title="All Passing">
+    </p>
+    <p>All of your tests are passing. Great job!</p>
+    <p>::page{title="Conclusion"}</p>
+    <h4>Congratulations on Completing This Assertions Lab</h4>
+    <p>Hopefully, you now know how to write test assertions. You know that assertions are checks to determine if tests have passed or failed. You have used the assertions supplied by PyUnit’s <code>TestCase</code> class to make your tests easier to read.</p>
+    <p>Now you should write test cases with assertions for your own projects to make sure that your code works as expected.</p>
+    <h2>Author(s)</h2>
+    <p>John Rofrano</p>
+    <h2>Contributor(s)</h2>
+    <p>Srishti Srivastava</p>
+    <h2>Changelog</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Version</th>
+          <th>Changed by</th>
+          <th>Change Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>2022-04-11</td>
+          <td>1.0</td>
+          <td>Srishti</td>
+          <td>Created new lab</td>
+        </tr>
+        <tr>
+          <td>2022-04-15</td>
+          <td>1.1</td>
+          <td>Zach Rash</td>
+          <td>Proofread and edited</td>
+        </tr>
+        <tr>
+          <td>2022-04-17</td>
+          <td>1.2</td>
+          <td>Rofrano</td>
+          <td>Fixed image links</td>
+        </tr>
+        <tr>
+          <td>2022-04-18</td>
+          <td>1.3</td>
+          <td>Rofrano</td>
+          <td>Reformatted with new content</td>
+        </tr>
+        <tr>
+          <td>2022-04-18</td>
+          <td>1.4</td>
+          <td>Zach Rash</td>
+          <td>Proofread and edited</td>
+        </tr>
+      </tbody>
+    </table>
+    <h2></h2>
+    <h3 align="center">© IBM Corporation 2022. All rights reserved.</h3>
+    <h3></h3>
+    <script>window.addEventListener('load', function() {
+snFaculty.inject();
+});</script>
+    <script src="https://skills-network-assets.s3.us.cloud-object-storage.appdomain.cloud/scripts/inject.43989f87.js"></script>
+    <script src="https://unpkg.com/@highlightjs/cdn-assets@10.7.1/highlight.min.js"></script>
+    <script src="https://unpkg.com/highlightjs-badge@0.1.9/highlightjs-badge.min.js"></script>
+  </body>
+</html>

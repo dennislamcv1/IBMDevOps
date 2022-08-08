@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://unpkg.com/@highlightjs/cdn-assets@10.7.1/styles/default.min.css">
+  </head>
+  <body>
+    <p>::page{title="Hands-On Lab: Mocking Objects"}</p>
+    <p><strong>Estimated time needed:</strong> 30 minutes</p>
+    <p>Welcome to the <strong>Mocking Objects</strong> lab. Mocking is a process for creating objects that mimic the behavior of real objects. It can be very useful when your code calls another system that it depends on which might not be available during testing. Mocking is critical for making sure that you are only testing your code, not someone else’s system.</p>
+    <p>In this lab, you are going to use both patching and mocking to mock the real calls to the Internet Movie Database (IMDb) service during testing. You are also going to use test fixtures to provide valid responses that you would have gotten back from the IMDb service had you really called it. In this way, you can control what is returned from the service without ever actually calling to it.</p>
+    <h2>Learning Objectives</h2>
+    <p>After completing this lab, you will be able to:</p>
+    <ul>
+      <li>Load mock responses from real APIs by using test fixtures</li>
+      <li>Use the patch decorator during testing</li>
+      <li>Mimic the behavior of other objects by using the Mock class</li>
+      <li>Write test cases that patch and mock returned objects using test fixture data</li>
+    </ul>
+    <p>::page{title="About Theia"}</p>
+    <p>Theia is an open-source IDE (Integrated Development Environment) that can be run on desktop or on cloud. You will be using the Theia IDE to do this lab. When you log into the Theia environment, you are presented with a 'dedicated computer on the cloud' exclusively for you. This is available to you as long as you work on the labs. Once you log off, this 'dedicated computer on the cloud' is deleted along with any files you may have created. So, it is a good idea to finish your labs in a single session. If you finish part of the lab and return to the Theia lab later, you may have to start from the beginning. Plan to work out all your Theia labs when you have the time to finish the complete lab in a single session.</p>
+    <p>::page{title="Set Up the Lab Environment"}</p>
+    <p>You have a little preparation to do before you can start the lab.</p>
+    <h2>Open a Terminal</h2>
+    <p>Open a terminal window by using the menu in the editor: Terminal > New Terminal.</p>
+    <p>In the terminal, if you are not already in the <code>/home/projects</code> folder, change to your project folder now.</p>
+    <pre><code class="hljs language-bash"><span class="hljs-built_in">cd</span> /home/project
+</code></pre>
+    <h2>Clone the Code Repo</h2>
+    <p>Now get the code that you need to test. To do this, use the <code>git clone</code> command to clone the git repository:</p>
+    <pre><code class="hljs language-bash">git <span class="hljs-built_in">clone</span> https://github.com/ibm-developer-skills-network/duwjx-tdd_bdd_PracticeCode.git
+</code></pre>
+    <h2>Change into the Lab Folder</h2>
+    <p>Once you have cloned the repository, change to the lab directory:</p>
+    <pre><code class="hljs language-bash"><span class="hljs-built_in">cd</span> duwjx-tdd_bdd_PracticeCode/labs/06_mocking_objects
+</code></pre>
+    <h2>Install Python Dependencies</h2>
+    <p>The final preparation step is to use <code>pip</code> to install the Python packages needed for the lab:</p>
+    <pre><code class="hljs language-bash">pip install -r requirements.txt
+</code></pre>
+    <p>You are now ready to start the lab.</p>
+    <h3>Optional</h3>
+    <p>If working in the terminal becomes difficult because the command prompt is very long, you can shorten the prompt using the following command:</p>
+    <pre><code class="hljs language-bash"><span class="hljs-built_in">export</span> PS1=<span class="hljs-string">"[\[\033[01;32m\]\u\[\033[00m\]: \[\033[01;34m\]\W\[\033[00m\]]\$ "</span>
+</code></pre>
+    <p>::page{title="Navigate to the Code"}</p>
+    <p>In the IDE on the right of your screen, navigate to the <code>duwjx-tdd_bdd_PracticeCode/labs/06_mocking_objects</code> folder. This folder contains all of the source code that you will use for this lab.</p>
+    <pre><code class="hljs language-arduino">duwjx-tdd_bdd_PracticeCode
+└── labs
+    └── <span class="hljs-number">06</span>_mocking_objects
+</code></pre>
+    <p>
+      <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0241EN-SkillsNetwork/labs/module3/images/06_mocking_objects_folder.png" alt="Mock Objects Folder" title="Mock Objects Folder">
+    </p>
+    <p>::page{title="Establishing Test Fixtures"}</p>
+    <p>In the <code>tests/fixtures/</code> folder you will find a file called <code>imdb_responses.json</code>. This file was created by calling the IMDb API and recording the responses that came back. Each response was given a name and placed into a <code>json</code> file to be loaded during test.</p>
+    <p>In addition, a few responses were copied and then modified to simulate good and bad responses. Hopefully you can see how powerful it is that you can control what is returned under test conditions. You can make the responses do anything you want.</p>
+    <p>Open the <code>tests/fixtures/imdb_responses.json</code> file in the IDE to familiarize yourself with the various responses that you will use in the tests.</p>
+    <p>::openFile{path="/home/project/duwjx-tdd_bdd_PracticeCode/labs/06_mocking_objects/tests/fixtures/imdb_responses.json"}</p>
+    <p>::page{title="The IMDb Class"}</p>
+    <p>In the <code>models/</code> folder you will find a file called <code>imdb.py</code>. This module contains the <code>IMDb</code> class that you will test. The module implements three (3) of the many APIs that the IMDb service exposes. Specifically, the <strong>SearchTitle</strong>, <strong>Reviews</strong>, and <strong>Ratings</strong> APIs have been implemented by the methods <code>search_titles()</code>, <code>movie_reviews()</code>, and <code>movie_ratings()</code> respectively.</p>
+    <p>Open the <code>models/imdb.py</code> file in the IDE to familiarize yourself with the various methods of calling it. You will call these methods in your tests.</p>
+    <p>::openFile{path="/home/project/duwjx-tdd_bdd_PracticeCode/labs/06_mocking_objects/models/imdb.py"}</p>
+    <p>::page{title="The Test Cases"}</p>
+    <p>In the <code>tests/</code> folder you will find a file called <code>test_imdb.py</code>. This is the file that you will add to your test cases to test the <code>IMDb</code> class.</p>
+    <p>Open the <code>tests/test_imdb.py</code> file in the IDE editor. You will work in this file for the remainder of the lab.</p>
+    <p>::openFile{path="/home/project/duwjx-tdd_bdd_PracticeCode/labs/06_mocking_objects/tests/test_imdb.py"}</p>
+    <p>::page{title="Step 1: Test Search by Title"}</p>
+    <p>You will start by implementing a test case for search by title. Below is the test method that currently implements search by title without any patching or mocking.</p>
+    <h2>Initial Code</h2>
+    <p>Copy and paste this code into <code>test_imdb.py</code> as the first test but don't run it yet. Remember to indent properly:</p>
+    <pre><code class="hljs language-python">	<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">test_search_by_title</span>(<span class="hljs-params">self</span>):</span>
+		<span class="hljs-string">"""Test searching by title"""</span>
+		imdb = IMDb(<span class="hljs-string">"k_12345678"</span>)
+		results = imdb.search_titles(<span class="hljs-string">"Bambi"</span>)
+		self.assertIsNotNone(results)
+		self.assertIsNone(results[<span class="hljs-string">"errorMessage"</span>])
+		self.assertIsNotNone(results[<span class="hljs-string">"results"</span>])
+		self.assertEqual(results[<span class="hljs-string">"results"</span>][<span class="hljs-number">0</span>][<span class="hljs-string">"id"</span>], <span class="hljs-string">"tt1375666"</span>)
+</code></pre>
+    <blockquote>
+      <p>Notice this code instantiates an IMDb object initializing it with an API key. Then the code calls <code>imdb.search_titles()</code> for the movie "Bambi" and asserts that the results are not <code>None</code>. It also checks that the error message is empty and that the <code>id</code> returned is <code>tt1375666</code>.</p>
+    </blockquote>
+    <p>If you had a real IMDb API key, this code would call the IMDb service and return a response. But you don't want to use up your allocation of API calls on testing, so you will patch this method to not call the <code>imdb.search_titles()</code> at all.</p>
+    <h2>Your Task</h2>
+    <p>You want to patch the <code>search_titles()</code> method of the <code>IMDb</code> class (i.e., <code>IBDb.search_titles()</code>) so that it is not called at all. For this, you will use the <code>@patch()</code> decorator and patch the <code>return_value</code> to return the <code>GOOD_SEARCH</code> test fixture data.</p>
+    <ol>
+      <li>In <code>test_imdb.py</code>, add the following line of code before the <code>test_search_by_title(self)</code> method and add a parameter for the new mock called <code>imdb_mock</code>.</li>
+    </ol>
+    <pre><code class="hljs language-python"><span class="hljs-meta">	@patch(<span class="hljs-params"><span class="hljs-string">'test_imdb.IMDb.search_titles'</span></span>)</span>
+	<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">test_search_by_title</span>(<span class="hljs-params">self, imdb_mock</span>):</span>
+</code></pre>
+    <blockquote>
+      <p>Notice that this is patching <code>test_imdb.IMDb.search_titles</code>. The name of your test module is <code>test_imdb</code> and so you should patch the <code>IMDb</code> class that you imported, not the one in the <code>models</code> package. This concept is important to understand. You always want to patch the function that is within the namespace that you are testing. This is why you need to fully qualify <code>IMDb.search_titles</code> as <code>test_imdb.IMDb.search_titles</code>.</p>
+    </blockquote>
+    <ol start="2">
+      <li>Next, add this line of code as the first line inside the test method after the docstring and before the call to instantiate the <code>IMDb</code> class:</li>
+    </ol>
+    <pre><code class="hljs language-python">	imdb_mock.return_value = IMDB_DATA[<span class="hljs-string">"GOOD_SEARCH"</span>]
+</code></pre>
+    <blockquote>
+      <p>Notice that <code>imdb_mock</code> is the extra parameter that you added to the method call after using <code>@patch()</code>. This variable represents the patch that was made. You can use <code>return_value</code> or <code>side_effect</code> on this variable. In this case, you are using <code>return_value</code> to control what is returned from the patched call.</p>
+    </blockquote>
+    <p>Those two changes are enough to not call the <code>IMDb.search_titles()</code> method and instead simply return the <code>GOOD_SEARCH</code> response.</p>
+    <h2>Solution</h2>
+    <details>
+      <summary>Click here for the solution.</summary>
+      <p>In <code>test_imdb.py</code>, replace the code for the <code>test_search_by_title(self)</code> method with the code below. Remember to indent properly.</p>
+      <pre><code class="hljs language-python"><span class="hljs-meta">@patch(<span class="hljs-params"><span class="hljs-string">'test_imdb.IMDb.search_titles'</span></span>)</span>
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">test_search_by_title</span>(<span class="hljs-params">self, imdb_mock</span>):</span>
+    <span class="hljs-string">"""Test searching by title"""</span>
+    imdb_mock.return_value = IMDB_DATA[<span class="hljs-string">"GOOD_SEARCH"</span>]
+    imdb = IMDb(<span class="hljs-string">"k_12345678"</span>)
+    results = imdb.search_titles(<span class="hljs-string">"Bambi"</span>)
+    self.assertIsNotNone(results)
+    self.assertIsNone(results[<span class="hljs-string">"errorMessage"</span>])
+    self.assertIsNotNone(results[<span class="hljs-string">"results"</span>])
+    self.assertEqual(results[<span class="hljs-string">"results"</span>][<span class="hljs-number">0</span>][<span class="hljs-string">"id"</span>], <span class="hljs-string">"tt1375666"</span>)
+</code></pre>
+    </details>
+    <h2>Run the Tests</h2>
+    <p>Run <code>nosetests</code> and make sure the test cases pass:</p>
+    <pre><code class="hljs language-bash">nosetests
+</code></pre>
+    <p>The results should look like this:</p>
+    <pre><code class="hljs language-asciidoc">Tests Cases for IMDb Database
+<span class="hljs-bullet">- </span>Test searching by title
+
+<span class="hljs-section">Name                 Stmts   Miss  Cover   Missing
+--------------------------------------------------</span>
+models/<span class="hljs-emphasis">__init__</span>.py       1      0   100%
+<span class="hljs-section">models/imdb.py          24     15    38%   19-23, 27-31, 35-39
+--------------------------------------------------</span>
+<span class="hljs-section">TOTAL                   25     15    40%
+----------------------------------------------------------------------</span>
+Ran 1 test in 0.112s
+
+OK
+</code></pre>
+    <p>::page{title="Step 2: Search with No Result"}</p>
+    <p>Now you are going to slowly get more sophisticated in what you patch and mock. This next test is a "sad path." It will test a call that returns no result.</p>
+    <h2>Initial Code</h2>
+    <p>Start by cutting and pasting the non-patched version of the <code>test_search_with_no_results(self)</code> method into <code>test_imdb.py</code>. Here is the code to copy:</p>
+    <pre><code class="hljs language-python">	<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">test_search_with_no_results</span>(<span class="hljs-params">self</span>):</span>
+		<span class="hljs-string">"""Test searching with no results"""</span>
+		imdb = IMDb(<span class="hljs-string">"k_12345678"</span>)
+		results = imdb.search_titles(<span class="hljs-string">"Bambi"</span>)
+		self.assertEqual(results, {})
+</code></pre>
+    <blockquote>
+      <p>Notice this instantiates a new IMDb instance with an API key, and then it calls <code>imdb.search_titles("Bambi")</code> and asserts that it sent back an empty dictionary. That's unlikely unless you can get the IMDb service to fail... but you can simulate that failure with a mock!</p>
+    </blockquote>
+    <h2>Your Task</h2>
+    <ol>
+      <li>In <code>test_imdb.py</code>, add the following line of code before the <code>test_search_with_no_results(self)</code> method. Then add a parameter for the new mock called <code>imdb_mock</code>. The purpose of this code is to patch the call to <code>requests.get()</code> so that you can control what comes back using the <code>imdb_mock</code> variable.</li>
+    </ol>
+    <pre><code class="hljs language-python"><span class="hljs-meta">	@patch(<span class="hljs-params"><span class="hljs-string">'models.imdb.requests.get'</span></span>)</span>
+	<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">test_search_with_no_results</span>(<span class="hljs-params">self, imdb_mock</span>):</span>
+</code></pre>
+    <blockquote>
+      <p>Notice that this time you are patching a third-party library called <code>requests</code>. But it's not the requests package that you have imported into your test module. It's the requests package in the <code>imdb</code> module (<code>models.imdb.requests.get</code>). Specifically, you are patching the <code>get</code> function because <code>IMDb.search_titles()</code> is going to eventually call the <code>requests.get()</code> method to make the call to the IMDb API. You want to intercept (or patch) that call so that you can control what is returned.</p>
+    </blockquote>
+    <ol start="2">
+      <li>Next, add this line of code as the first line inside the test method after the docstring and before the call to instantiate the <code>IMDb</code> class:</li>
+    </ol>
+    <pre><code class="hljs language-python">	imdb_mock.return_value = Mock(status_code=<span class="hljs-number">404</span>)
+</code></pre>
+    <blockquote>
+      <p>Notice this code patches the <code>return_value</code> of the <code>requests.get()</code> call with a <code>Mock</code> object that has an attribute called <code>status_code</code> set to <code>404</code>. If you search in the source code for <code>IMDb.search_titles()</code> you will find that after the call to <code>requests.get()</code> is made, it checks that the <code>status_code</code> is <code>200</code>. If the status code isn't <code>200</code>, the code returns an empty dictionary <code>{}</code>. This is the behavior you want to test.</p>
+    </blockquote>
+    <p>Those two changes are enough to cause the <code>requests.get()</code> method to not be called and instead, return a <code>Mock</code> object with a <code>status_code</code> of <code>404</code> and send back <code>{}</code>.</p>
+    <h2>Solution</h2>
+    <details>
+      <summary>Click here for the solution.</summary>
+      <p>In <code>test_imdb.py</code>, replace any code you currently have for the <code>test_search_with_no_results(self)</code> method with the code below. Remember to indent properly.</p>
+      <pre><code class="hljs language-python"><span class="hljs-meta">	@patch(<span class="hljs-params"><span class="hljs-string">'models.imdb.requests.get'</span></span>)</span>
+	<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">test_search_with_no_results</span>(<span class="hljs-params">self, imdb_mock</span>):</span>
+		<span class="hljs-string">"""Test searching with no results"""</span>
+		imdb_mock.return_value = Mock(status_code=<span class="hljs-number">404</span>)
+		imdb = IMDb(<span class="hljs-string">"k_12345678"</span>)
+		results = imdb.search_titles(<span class="hljs-string">"Bambi"</span>)
+		self.assertEqual(results, {})
+</code></pre>
+    </details>
+    <h2>Run the Tests</h2>
+    <p>Run <code>nosetests</code> and make sure the test cases pass:</p>
+    <pre><code class="hljs language-bash">nosetests
+</code></pre>
+    <p>The results should look like this:</p>
+    <pre><code class="hljs language-asciidoc">Tests Cases for IMDb Database
+<span class="hljs-bullet">- </span>Test searching by title
+<span class="hljs-bullet">- </span>Test searching with no results
+
+<span class="hljs-section">Name                 Stmts   Miss  Cover   Missing
+--------------------------------------------------</span>
+models/<span class="hljs-emphasis">__init__</span>.py       1      0   100%
+<span class="hljs-section">models/imdb.py          24     11    54%   22, 27-31, 35-39
+--------------------------------------------------</span>
+<span class="hljs-section">TOTAL                   25     11    56%
+----------------------------------------------------------------------</span>
+Ran 2 tests in 0.114s
+
+OK
+</code></pre>
+    <p>::page{title="Step 3: Search by Title Failed"}</p>
+    <p>Next, you will build another failure test case, but this time you need a mock that behaves like a <code>Response</code> object from the <code>requests</code> package. You will return a good return code of <code>200</code> but you are simulating the use of a bad API key so you need a specific error message returned. Luckily, you have one called <code>INVALID_API</code> in your test fixture data.</p>
+    <h2>Initial Code</h2>
+    <p>Start by cutting and pasting the non-patched version of the <code>test_search_by_title_failed(self)</code> method into <code>test_imdb.py</code>. Here is the code to copy:</p>
+    <pre><code class="hljs language-python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">test_search_by_title_failed</span>(<span class="hljs-params">self</span>):</span>
+    <span class="hljs-string">"""Test searching by title failed"""</span>
+    imdb = IMDb(<span class="hljs-string">"bad-key"</span>)
+    results = imdb.search_titles(<span class="hljs-string">"Bambi"</span>)
+    self.assertIsNotNone(results)
+    self.assertEqual(results[<span class="hljs-string">"errorMessage"</span>], <span class="hljs-string">"Invalid API Key"</span>)
+</code></pre>
+    <blockquote>
+      <p>Notice that this code instantiates a new IMDb instance passing in a bad API key. Then the code calls <code>imdb.search_titles("Bambi")</code> and asserts that it sent back an error message of <em>"Invalid API Key"</em>.</p>
+    </blockquote>
+    <h2>Your Task</h2>
+    <ol>
+      <li>In <code>test_imdb.py</code>, add the following line of code before the <code>test_search_by_title_failed(self)</code> method and add a parameter for the new mock called <code>imdb_mock</code>. This code represents the patch to the call to <code>requests.get()</code>. With it, you can control what comes back using the <code>imdb_mock</code> variable.</li>
+    </ol>
+    <pre><code class="hljs language-python"><span class="hljs-meta">	@patch(<span class="hljs-params"><span class="hljs-string">'models.imdb.requests.get'</span></span>)</span>
+	<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">test_search_by_title_failed</span>(<span class="hljs-params">self, imdb_mock</span>):</span>
+</code></pre>
+    <blockquote>
+      <p>Notice that once again, you are patching the third-party library called <code>requests</code> that is imported by the <code>imdb</code> module in the <code>models</code> package (i.e. <code>models.imdb.requests.get</code>). Specifically, you are patching the <code>get</code> function because <code>IMDb.search_titles()</code> will eventually call the <code>requests.get()</code> method to make the call to the IMDb API. You want to intercept (or patch) that call to control what is returned.</p>
+    </blockquote>
+    <ol start="2">
+      <li>
+        <p>You will send back a good return code of <code>200</code>. In turn, that return code will cause the <code>IMDb.search_titles()</code> method to then call <code>request.json()</code> on the returned request. To “fool” <code>search_titles()</code> into thinking it got back a real <code>requests.Response</code>, you must use <code>spec=Response,</code> when creating the mock so that it behaves like the real <code>Response</code> class.</p>
+      </li>
+      <li>
+        <p>Further, you need to mock the <code>json()</code> call to return the response that you want: <code>INVALID_API</code> from your test fixture data. To accomplish this, you will add one line of code to your test before any other calls.</p>
+      </li>
+    </ol>
+    <p>Next, add this line of code as the first line inside the test method. Place it after the docstring but before the call to instantiate the <code>IMDb</code> class:</p>
+    <pre><code class="hljs language-python">	imdb_mock.return_value = Mock(
+		spec=Response,
+		status_code=<span class="hljs-number">200</span>,
+		json=Mock(return_value=IMDB_DATA[<span class="hljs-string">"INVALID_API"</span>])
+	)
+</code></pre>
+    <blockquote>
+      <p>Notice that this code patches the <code>return_value</code> of the <code>requests.get()</code> call with a <code>Mock</code> object that has an attribute called <code>status_code</code> set to <code>200</code>. If you search in the source code for <code>IMDb.search_titles()</code> you will find that after the call to <code>requests.get()</code> is made, it checks the <code>status_code</code>. If the status code is <code>200</code>, it then calls <code>request.json()</code> to get the payload. This is why you must also mock the call to <code>json()</code> and return the response that you want.</p>
+    </blockquote>
+    <p>Those three changes are enough to cause the <code>requests.get()</code> method to not be called and instead return a <code>Mock</code> object with a <code>status_code</code> of <code>200</code>. It will also return a <code>Response.json()</code> method that will send back the <code>INVALID_API</code> response that you have specified when called.</p>
+    <h2>Solution</h2>
+    <details>
+      <summary>Click here for the solution.</summary>
+      <p>In <code>test_imdb.py</code>, replace any code you currently have for the <code>test_search_by_title_failed(self)</code> method with the code below. Remember to indent properly.</p>
+      <pre><code class="hljs language-python"><span class="hljs-meta">	@patch(<span class="hljs-params"><span class="hljs-string">'models.imdb.requests.get'</span></span>)</span>
+	<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">test_search_by_title_failed</span>(<span class="hljs-params">self, imdb_mock</span>):</span>
+		<span class="hljs-string">"""Test searching by title failed"""</span>
+		imdb_mock.return_value = Mock(
+			spec=Response,
+			status_code=<span class="hljs-number">200</span>,
+			json=Mock(return_value=IMDB_DATA[<span class="hljs-string">"INVALID_API"</span>])
+		)
+		imdb = IMDb(<span class="hljs-string">"bad-key"</span>)
+		results = imdb.search_titles(<span class="hljs-string">"Bambi"</span>)
+		self.assertIsNotNone(results)
+		self.assertEqual(results[<span class="hljs-string">"errorMessage"</span>], <span class="hljs-string">"Invalid API Key"</span>)
+</code></pre>
+    </details>
+    <h2>Run the Tests</h2>
+    <p>Run <code>nosetests</code> and make sure the test cases pass:</p>
+    <pre><code class="hljs language-bash">nosetests
+</code></pre>
+    <p>The results should look like this:</p>
+    <pre><code class="hljs language-asciidoc">Tests Cases for IMDb Database
+<span class="hljs-bullet">- </span>Test searching by title
+<span class="hljs-bullet">- </span>Test searching by title failed
+<span class="hljs-bullet">- </span>Test searching with no results
+
+<span class="hljs-section">Name                 Stmts   Miss  Cover   Missing
+--------------------------------------------------</span>
+models/<span class="hljs-emphasis">__init__</span>.py       1      0   100%
+<span class="hljs-section">models/imdb.py          24     10    58%   27-31, 35-39
+--------------------------------------------------</span>
+<span class="hljs-section">TOTAL                   25     10    60%
+----------------------------------------------------------------------</span>
+Ran 3 tests in 0.111s
+
+OK
+</code></pre>
+    <p>::page{title="Step 4: Test Movie Ratings"}</p>
+    <p>In this final step, you are going to test the movie ratings call. Since you don't want to call the real IMDb database under test, you will once again mock the <code>requests.get()</code> call and substitute your own movie ratings response from your test fixture data.</p>
+    <p>Hopefully you can see that by patching the remote call, you can test the rest of the function code before and after the call to make sure that it behaves properly under all kinds of test conditions.</p>
+    <h2>Initial Code</h2>
+    <p>Start by cutting and pasting the non-patched version of the <code>test_movie_ratings(self)</code> method into <code>test_imdb.py</code>. Here is the code to copy:</p>
+    <pre><code class="hljs language-python">	<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">test_movie_ratings</span>(<span class="hljs-params">self</span>):</span>
+		<span class="hljs-string">"""Test movie Ratings"""</span>
+		imdb = IMDb(<span class="hljs-string">"k_12345678"</span>)
+		results = imdb.movie_ratings(<span class="hljs-string">"tt1375666"</span>)
+		self.assertIsNotNone(results)
+		self.assertEqual(results[<span class="hljs-string">"title"</span>], <span class="hljs-string">"Bambi"</span>)
+		self.assertEqual(results[<span class="hljs-string">"filmAffinity"</span>], <span class="hljs-number">3</span>)
+		self.assertEqual(results[<span class="hljs-string">"rottenTomatoes"</span>], <span class="hljs-number">5</span>)
+</code></pre>
+    <blockquote>
+      <p>Notice that this code instantiates a new IMDb instance passing in an API key. Then it calls <code>imdb.movie_ratings({id})</code> passing in a movie id. Finally, it asserts that the results are not <code>None</code> and then it checks some of the ratings to be sure it's the correct data.</p>
+    </blockquote>
+    <h2>Your Task</h2>
+    <ol>
+      <li>In <code>test_imdb.py</code>, add the following line of code before the <code>test_movie_ratings(self)</code> method and add a parameter for the new mock called <code>imdb_mock</code>. This code represents the patch to the call to <code>requests.get()</code>. With it, you can control what comes back using the <code>imdb_mock</code> variable.</li>
+    </ol>
+    <pre><code class="hljs language-python"><span class="hljs-meta">	@patch(<span class="hljs-params"><span class="hljs-string">'models.imdb.requests.get'</span></span>)</span>
+	<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">test_movie_ratings</span>(<span class="hljs-params">self, imdb_mock</span>):</span>
+</code></pre>
+    <blockquote>
+      <p>Notice that once again, you are patching the third-party library function <code>requests.get()</code> and creating a variable called <code>imdb_mock</code>. With this variable, you can control how the patch behaves.</p>
+    </blockquote>
+    <ol start="2">
+      <li>
+        <p>You are going to send back a good return code of <code>200</code>. In turn, this return code will cause the <code>IMDb.movie_ratings()</code> method to then call <code>request.json()</code> on the returned request. To “fool” <code>movie_ratings()</code> into thinking it got back a real <code>requests.Response</code>, you must use <code>spec=Response,</code> when creating the mock so that it behaves like the real <code>Response</code> class.</p>
+      </li>
+      <li>
+        <p>Yet again, you need to mock the <code>json()</code> call to return the response that you want: <code>GOOD_RATING</code> from your test fixture data. You will accomplish this by adding one line of code to your test.</p>
+      </li>
+    </ol>
+    <p>Next, add this line of code as the first line inside the test method. Place it after the docstring but before the call to instantiate the <code>IMDb</code> class:</p>
+    <pre><code class="hljs language-python">	imdb_mock.return_value = Mock(
+		spec=Response,
+		status_code=<span class="hljs-number">200</span>,
+		json=Mock(return_value=IMDB_DATA[<span class="hljs-string">"GOOD_RATING"</span>])
+	)
+</code></pre>
+    <blockquote>
+      <p>Notice this is patching the <code>return_value</code> of the <code>requests.get()</code> call with a <code>Mock</code> object that has an attribute called <code>status_code</code> set to <code>200</code>. If you search in the source code for <code>IMDb.movie_ratings()</code> you will find that after the call to <code>requests.get()</code> is made, it checks that the <code>status_code</code>. If the <code>status code</code> is <code>200</code>, it then calls <code>request.json()</code> to get the results. This is why you must also mock the call to <code>json()</code> and return the results that you want.</p>
+    </blockquote>
+    <p>Those three changes are enough to cause the <code>requests.get()</code> method to not be called and instead return a <code>Mock</code> object with a <code>status_code</code> of <code>200</code>. Then when <code>Response.json()</code> is called, it will send back the <code>GOOD_RATING</code> response that you have specified.</p>
+    <h2>Solution</h2>
+    <details>
+      <summary>Click here for the solution.</summary>
+      <p>In <code>test_imdb.py</code>, replace any code you currently have for the <code>test_movie_ratings(self)</code> method with the code below. Remember to indent properly.</p>
+      <pre><code class="hljs language-python"><span class="hljs-meta">	@patch(<span class="hljs-params"><span class="hljs-string">'models.imdb.requests.get'</span></span>)</span>
+	<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">test_movie_ratings</span>(<span class="hljs-params">self, imdb_mock</span>):</span>
+		<span class="hljs-string">"""Test movie Ratings"""</span>
+		imdb_mock.return_value = Mock(
+			spec=Response,
+			status_code=<span class="hljs-number">200</span>,
+			json=Mock(return_value=IMDB_DATA[<span class="hljs-string">"GOOD_RATING"</span>])
+		)
+		imdb = IMDb(<span class="hljs-string">"k_12345678"</span>)
+		results = imdb.movie_ratings(<span class="hljs-string">"tt1375666"</span>)
+		self.assertIsNotNone(results)
+		self.assertEqual(results[<span class="hljs-string">"title"</span>], <span class="hljs-string">"Bambi"</span>)
+		self.assertEqual(results[<span class="hljs-string">"filmAffinity"</span>], <span class="hljs-number">3</span>)
+		self.assertEqual(results[<span class="hljs-string">"rottenTomatoes"</span>], <span class="hljs-number">5</span>)
+</code></pre>
+    </details>
+    <h2>Run the Tests</h2>
+    <p>Run <code>nosetests</code> and make sure the test cases pass:</p>
+    <pre><code class="hljs language-bash">nosetests
+</code></pre>
+    <p>The results should look like this:</p>
+    <pre><code class="hljs language-asciidoc">Tests Cases for IMDb Database
+<span class="hljs-bullet">- </span>Test movie Ratings
+<span class="hljs-bullet">- </span>Test searching by title
+<span class="hljs-bullet">- </span>Test searching by title failed
+<span class="hljs-bullet">- </span>Test searching with no results
+
+<span class="hljs-section">Name                 Stmts   Miss  Cover   Missing
+--------------------------------------------------</span>
+models/<span class="hljs-emphasis">__init__</span>.py       1      0   100%
+<span class="hljs-section">models/imdb.py          24      6    75%   27-31, 39
+--------------------------------------------------</span>
+<span class="hljs-section">TOTAL                   25      6    76%
+----------------------------------------------------------------------</span>
+Ran 4 tests in 0.109s
+
+OK
+</code></pre>
+    <p>::page{title="Conclusion"}</p>
+    <p>Congratulations! You just completed the <strong>Mock Objects</strong> lab. Hopefully you now recognize the pattern with mocking. First, you use the <code>@patch()</code> decorator to wrap your test case with a patch. Specifically, this patch will change the behavior of a function call that will eventually be called during the test. Then, you add a new parameter to the test method call, a parameter representing the patched object. Finally, you use that parameter to patch either the <code>return_value</code> or <code>side_effect</code> that will change the behavior of the patched function.</p>
+    <p>You also learned how to use mock objects to mimic other classes like the <code>Response</code> class. With these mocks, you can control how these classes behave and what they return. You even mocked the <code>json()</code> function call on the mocked <code>Response</code> class to control what it returned.</p>
+    <p>You now have the tools to create mock objects and control how they behave and what they return.</p>
+    <p>Your next challenge is to apply these techniques in your projects to mock out any external dependencies during testing. By doing this, you can ensure that you are testing the behavior of your code, not someone else's service.</p>
+    <h2>Author(s)</h2>
+    <p>John Rofrano</p>
+    <h2>Changelog</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Version</th>
+          <th>Changed by</th>
+          <th>Change Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>2022-04-16</td>
+          <td>1.0</td>
+          <td>Rofrano</td>
+          <td>Create new lab</td>
+        </tr>
+        <tr>
+          <td>2022-04-17</td>
+          <td>1.1</td>
+          <td>Zach Rash</td>
+          <td>Proofread and edit</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+    <h2></h2>
+    <h3 align="center">© IBM Corporation 2022. All rights reserved.</h3>
+    <h3></h3>
+    <script>window.addEventListener('load', function() {
+snFaculty.inject();
+});</script>
+    <script src="https://skills-network-assets.s3.us.cloud-object-storage.appdomain.cloud/scripts/inject.43989f87.js"></script>
+    <script src="https://unpkg.com/@highlightjs/cdn-assets@10.7.1/highlight.min.js"></script>
+    <script src="https://unpkg.com/highlightjs-badge@0.1.9/highlightjs-badge.min.js"></script>
+  </body>
+</html>

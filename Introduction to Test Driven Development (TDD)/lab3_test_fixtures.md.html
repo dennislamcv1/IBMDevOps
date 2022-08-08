@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://unpkg.com/@highlightjs/cdn-assets@10.7.1/styles/default.min.css">
+  </head>
+  <body>
+    <p>::page{title="Hands-On Lab: Creating an Initial State Using Test Fixtures"}</p>
+    <p><strong>Estimated time needed:</strong> 30 minutes</p>
+    <p>Welcome to <strong>Creating an Initial State Using Test Fixtures</strong>. Test fixtures are used to establish an initial known state before and after running tests. With test fixtures, you can describe what the test environment looks like before a test, or suite of tests, is run, and then again after the test runs.</p>
+    <h2>Learning Objectives</h2>
+    <p>After completing this lab, you will be able to:</p>
+    <ul>
+      <li>Create test fixtures for setting up and tearing down initial state</li>
+      <li>Load test data from external files for testing your code</li>
+      <li>Use loaded test data in your test cases and assertions</li>
+    </ul>
+    <p>::page{title="About Theia"}</p>
+    <p>Theia is an open-source IDE (Integrated Development Environment) that can be run on desktop or on cloud. You will be using the Theia IDE to do this lab. When you log into the Theia environment, you are presented with a 'dedicated computer on the cloud' exclusively for you. This is available to you as long as you work on the labs. Once you log off, this 'dedicated computer on the cloud' is deleted along with any files you may have created. So, it is a good idea to finish your labs in a single session. If you finish part of the lab and return to the Theia lab later, you may have to start from the beginning. Plan to work out all your Theia labs when you have the time to finish the complete lab in a single session.</p>
+    <p>::page{title="Set Up the Lab Environment"}</p>
+    <p>We have a little preparation to do before we can start the lab.</p>
+    <h2>Open a Terminal</h2>
+    <p>Open a terminal window by using the menu in the editor: Terminal > New Terminal.</p>
+    <p>In the terminal, if you are not already in the <code>/home/projects</code> folder, change to your project folder now.</p>
+    <pre><code class="hljs language-bash"><span class="hljs-built_in">cd</span> /home/project
+</code></pre>
+    <h2>Clone the Code Repo</h2>
+    <p>Now let's get the code that we need to test. To do this, you will use the <code>git clone</code> command to clone the git repository:</p>
+    <pre><code class="hljs language-bash">git <span class="hljs-built_in">clone</span> https://github.com/ibm-developer-skills-network/duwjx-tdd_bdd_PracticeCode.git
+</code></pre>
+    <h2>Change into the Lab Folder</h2>
+    <p>Once you have cloned the repository, change to the lab directory,</p>
+    <pre><code class="hljs language-bash"><span class="hljs-built_in">cd</span> duwjx-tdd_bdd_PracticeCode/labs/03_test_fixtures
+</code></pre>
+    <h2>Install Python Dependencies</h2>
+    <p>The final preparation step is to use <code>pip</code> to install the Python packages needed for the lab:</p>
+    <pre><code class="hljs language-bash">pip install -r requirements.txt
+</code></pre>
+    <p>You are now ready to start the lab.</p>
+    <h3>Optional</h3>
+    <p>If the command prompt becomes too long you can shorten it to something more manageable like this:</p>
+    <pre><code class="hljs language-bash"><span class="hljs-built_in">export</span> PS1=<span class="hljs-string">"[\[\033[01;32m\]\u\[\033[00m\]: \[\033[01;34m\]\W\[\033[00m\]]\$ "</span>
+</code></pre>
+    <p>::page{title="Review of Test Fixtures"}</p>
+    <p>In this lab, you are going to use the various test fixtures that are available in the PyUnit package. You should review the code below that shows you what test fixtures are available and when they will be invoked.</p>
+    <p>During the lab, you will select the proper place to add code. For example, you may need to add code that will run once before all of the tests in a class. You should know that the <code>setUpClass()</code> method will run once before all of the tests in the test case.</p>
+    <pre><code class="hljs language-python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">setUpModule</span>():</span>             <span class="hljs-comment"># runs once before any tests</span>
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">tearDownModule</span>():</span>          <span class="hljs-comment"># runs once after all tests</span>
+<span class="hljs-comment"># </span>
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MyTestCases</span>(<span class="hljs-params">TestCase</span>):</span>   <span class="hljs-comment"># the start of a test case</span>
+
+<span class="hljs-meta">	@classmethod</span>
+	<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">setUpClass</span>(<span class="hljs-params">cls</span>):</span>       <span class="hljs-comment"># runs once before test case</span>
+<span class="hljs-comment"># </span>
+<span class="hljs-meta">	@classmethod</span>
+	<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">tearDownClass</span>(<span class="hljs-params">cls</span>):</span>    <span class="hljs-comment"># runs once after test case</span>
+<span class="hljs-comment"># </span>
+	<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">setUp</span>(<span class="hljs-params">self</span>):</span>           <span class="hljs-comment"># runs before each test</span>
+
+	<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">tearDown</span>(<span class="hljs-params">self</span>):</span>        <span class="hljs-comment"># runs after each test</span>
+
+</code></pre>
+    <p>::page{title="Open the Code Editor"}</p>
+    <p>In this lab, you will see the different ways in which test fixtures can be used to set up and tear down the initial state before and after testing.</p>
+    <p>In the IDE, navigate to the <code>duwjx-tdd_bdd_PracticeCode/labs/03_test_fixtures</code> folder. This is where all of the source code that you will be using for this lab is located.</p>
+    <pre><code class="hljs language-arduino">duwjx-tdd_bdd_PracticeCode
+└── labs
+    └── <span class="hljs-number">03</span>_test_fixtures
+</code></pre>
+    <p>You will do all of your editing work in the file <code>tests/test_account.py</code>. Open that up in the editor to get started.</p>
+    <p>::openFile{path="/home/project/duwjx-tdd_bdd_PracticeCode/labs/03_test_fixtures/tests/test_account.py"}</p>
+    <p>::page{title="Step 1: Initialize the Database"}</p>
+    <p>In this step, you are going to set up a test fixture to connect and disconnect from the database. You only need to do this once before and after all of the tests.</p>
+    <h2>Your Task</h2>
+    <p>Think about which of the text fixtures are best used for connecting to a database before all tests, and disconnecting from the database after all tests.</p>
+    <p>The following <strong>SQLAlchemy</strong> commands will help you do this:</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Command</th>
+          <th>Definition</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>db.create_all()</td>
+          <td>Make the sqlalchemy tables</td>
+        </tr>
+        <tr>
+          <td>db.session.close()</td>
+          <td>Close the database connection</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>Use the class level fixtures to invoke <code>db.create_all()</code> before all tests and <code>db.session.close()</code> after all tests.</p>
+    <h2>Solution</h2>
+    <details>
+      <summary>Click here for the solution.</summary>
+      <p>Paste this code into <code>test_account.py</code>. Be sure to indent properly.</p>
+      <pre><code class="hljs language-python"><span class="hljs-meta">	@classmethod</span>
+	<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">setUpClass</span>(<span class="hljs-params">cls</span>):</span>
+		<span class="hljs-string">""" Connect and load data needed by tests """</span>
+		db.create_all()  <span class="hljs-comment"># make our SQLAlchemy tables</span>
+
+
+<span class="hljs-meta">	@classmethod</span>
+	<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">tearDownClass</span>(<span class="hljs-params">cls</span>):</span>
+		<span class="hljs-string">"""Disconnect from database"""</span>
+		db.session.close() <span class="hljs-comment"># close the database session</span>
+</code></pre>
+    </details>
+    <h2>Run the Tests</h2>
+    <p>Run <code>nosetests</code> to make sure that your test case executes without errors.</p>
+    <pre><code class="hljs language-bash">nosetests
+</code></pre>
+    <p>::page{title="Step 2: Load Test Data"}</p>
+    <p>In this step, you are going to load some test data so that it can be used during testing. This should only need to be done once before all tests so you will do this in a class method.</p>
+    <h2>Your Task</h2>
+    <p>There is test data in a file under the <code>tests/fixtures</code> folder called <code>account_data.json</code>.</p>
+    <p>Load the data from <code>tests/fixtures/account_data.json</code> into a global variable called <code>ACCOUNT_DATA</code> that has already been declared.</p>
+    <p>The Python code to load the data is:</p>
+    <pre><code class="hljs language-python"><span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(<span class="hljs-string">'tests/fixtures/account_data.json'</span>) <span class="hljs-keyword">as</span> json_data:
+    ACCOUNT_DATA = json.load(json_data)
+</code></pre>
+    <h2>Solution</h2>
+    <details>
+      <summary>Click here for the solution.</summary>
+      <p>Paste this code into <code>test_account.py</code>. Be sure to indent properly.</p>
+      <pre><code class="hljs language-python"><span class="hljs-meta">	@classmethod</span>
+	<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">setUpClass</span>(<span class="hljs-params">cls</span>):</span>
+		<span class="hljs-string">""" Connect and Load data needed by tests """</span>
+		db.create_all()  <span class="hljs-comment"># make our SQLAlchemy tables</span>
+		<span class="hljs-keyword">global</span> ACCOUNT_DATA
+		<span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(<span class="hljs-string">'tests/fixtures/account_data.json'</span>) <span class="hljs-keyword">as</span> json_data:
+			ACCOUNT_DATA = json.load(json_data)
+</code></pre>
+    </details>
+    <h2>Run the Tests</h2>
+    <p>Run <code>nosetests</code> to make sure that your test case executes without errors.</p>
+    <pre><code class="hljs language-bash">nosetests
+</code></pre>
+    <p>::page{title="Step 3: Write a Test Case to Create an Account"}</p>
+    <p>Now you are ready to write your first test. You will create a single account using the <code>ACCOUNT_DATA</code> dictionary that has test data for five accounts.</p>
+    <h2>Your Task</h2>
+    <p>The <code>Account</code> class has a <code>create()</code> method that can be used to add an account to the database. It also has an <code>all()</code> method that performs a query that returns all accounts.</p>
+    <p>Your test cases should create an account and then call the <code>Account.all()</code> method and assert that one account was returned.</p>
+    <h2>Solution</h2>
+    <details>
+      <summary>Click here for the solution.</summary>
+      <p>Paste this code into <code>test_account.py</code>. Be sure to indent properly.</p>
+      <pre><code class="hljs language-python">	<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">test_create_an_account</span>(<span class="hljs-params">self</span>):</span>
+		<span class="hljs-string">""" Test create a single Account """</span>
+		data = ACCOUNT_DATA[<span class="hljs-number">0</span>] <span class="hljs-comment"># get the first account</span>
+		account = Account(**data)
+		account.create()
+		self.assertEqual(<span class="hljs-built_in">len</span>(Account.<span class="hljs-built_in">all</span>()), <span class="hljs-number">1</span>)
+</code></pre>
+    </details>
+    <h2>Run the Tests</h2>
+    <p>Run <code>nosetests</code> to make sure that your test case passes.</p>
+    <pre><code class="hljs language-bash">nosetests
+</code></pre>
+    <p>You should see:</p>
+    <p>
+      <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0241EN-SkillsNetwork/labs/module2/images/03_step3_nose.png" alt="Nose tests" title="Nose tests">
+    </p>
+    <p>::page{title="Step 4: Write a Test Case to Create All Accounts"}</p>
+    <p>Now that you know that one account can be successfully created, let's write a test case that creates all five of the accounts in the <code>ACCOUNT_DATA</code> dictionary.</p>
+    <h2>Your Task</h2>
+    <p>Use a <code>for</code> loop to load all of the data from the <code>ACCOUNT_DATA</code> dictionary and then use the <code>Account.all()</code> method to retrieve them and assert that the number of accounts returned is equal to the number of accounts in the test data dictionary.</p>
+    <h2>Solution</h2>
+    <details>
+      <summary>Click here for the solution.</summary>
+      <p>Paste this code into <code>test_account.py</code>. Be sure to indent properly.</p>
+      <pre><code class="hljs language-python">	<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">test_create_all_accounts</span>(<span class="hljs-params">self</span>):</span>
+		<span class="hljs-string">""" Test creating multiple Accounts """</span>
+		<span class="hljs-keyword">for</span> data <span class="hljs-keyword">in</span> ACCOUNT_DATA:
+			account = Account(**data)
+			account.create()
+		self.assertEqual(<span class="hljs-built_in">len</span>(Account.<span class="hljs-built_in">all</span>()), <span class="hljs-built_in">len</span>(ACCOUNT_DATA))
+</code></pre>
+    </details>
+    <h2>Run the Tests</h2>
+    <p>Run <code>nosetests</code> to make sure that your test case passes.</p>
+    <pre><code class="hljs language-bash">nosetests
+</code></pre>
+    <p><strong>ERROR:</strong> This time the tests did not pass! You should have received two errors about <strong>AssertionError: 6 != 5</strong> and <strong>AssertionError: 7 != 1</strong>:</p>
+    <pre><code class="hljs language-excel">======================================================================
+FA<span class="hljs-symbol">IL:</span> Test Account creation using known data
+----------------------------------------------------------------------
+Traceback (most recent <span class="hljs-built_in">call</span> last)<span class="hljs-symbol">:</span>
+  File <span class="hljs-string">"/Users/rofrano/Code/duwjx-tdd_bdd_PracticeCode/labs/03_test_fixtures/tests/test_account.py"</span>, line <span class="hljs-number">52</span>, in test_create_an_account
+    self.assertEqual(<span class="hljs-built_in">len</span>(Account.all()), <span class="hljs-number">1</span>)
+AssertionErr<span class="hljs-symbol">or:</span> <span class="hljs-number">7</span> != <span class="hljs-number">1</span>
+</code></pre>
+    <p>Why were seven accounts returned when we only expect one?</p>
+    <p>Let's see how we can fix this in the next step.</p>
+    <p>::page{title="Step 5: Clear out the tables before each test"}</p>
+    <p>The reason that your test case failed is because data from a previous test has affected the outcome of the next test. To avoid this, you need to add more test fixtures that will run before and after each test.</p>
+    <h2>Your Task</h2>
+    <p>One way of removing the data from a table is with the <code>db.session.query(&#x3C;Table>).delete()</code> command where <code>&#x3C;Table></code> is the class name of the tables. This will delete all of the records in the table. You must also use <code>db.session.commit()</code> to commit this change. Add that to the fixture that runs before each test.</p>
+    <p>The correct syntax for your <code>Account</code> class is:</p>
+    <pre><code class="hljs language-python">db.session.query(Account).delete()
+</code></pre>
+    <p>It's also a good idea to use the <code>db.session.remove()</code> command after each test. Add that to the fixture that runs after each test.</p>
+    <h2>Solution</h2>
+    <details>
+      <summary>Click here for the solution.</summary>
+      <p>Paste this code into <code>test_account.py</code>. Be sure to indent properly.</p>
+      <pre><code class="hljs language-python">	<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">setUp</span>(<span class="hljs-params">self</span>):</span>
+		<span class="hljs-string">"""Truncate the tables"""</span>
+		db.session.query(Account).delete()
+		db.session.commit()
+
+
+	<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">tearDown</span>(<span class="hljs-params">self</span>):</span>
+		<span class="hljs-string">"""Remove the session"""</span>
+		db.session.remove()
+</code></pre>
+    </details>
+    <h2>Run the Tests</h2>
+    <p>Run <code>nosetests</code> to make sure that your test case passes.</p>
+    <pre><code class="hljs language-bash">nosetests
+</code></pre>
+    <p>You should see the following report:</p>
+    <p>
+      <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0241EN-SkillsNetwork/labs/module2/images/03_step5_nose.png" alt="All passing" title="All passing">
+    </p>
+    <p><strong>Congratulations!</strong> All of your test cases have passed this time.</p>
+    <p>::page{title="Conclusion"}</p>
+    <h3>Congratulations on Completing the Test Fixtures Lab</h3>
+    <p>Hopefully you now have a good understanding of how to use test fixtures in your testing. You have seen how using test fixtures allows you to control the state of the system before and after each test so that tests run in isolation and get repeatable results every time. Now try writing test cases for the code on some of your personal projects.</p>
+    <h2>Author(s)</h2>
+    <p>John Rofrano</p>
+    <h2>Changelog</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Version</th>
+          <th>Changed by</th>
+          <th>Change Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>2022-04-14</td>
+          <td>1.0</td>
+          <td>Rofrano</td>
+          <td>Create new Lab</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+    <h2></h2>
+    <h3 align="center">© IBM Corporation 2022. All rights reserved.</h3>
+    <h3></h3>
+    <script>window.addEventListener('load', function() {
+snFaculty.inject();
+});</script>
+    <script src="https://skills-network-assets.s3.us.cloud-object-storage.appdomain.cloud/scripts/inject.43989f87.js"></script>
+    <script src="https://unpkg.com/@highlightjs/cdn-assets@10.7.1/highlight.min.js"></script>
+    <script src="https://unpkg.com/highlightjs-badge@0.1.9/highlightjs-badge.min.js"></script>
+  </body>
+</html>

@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://unpkg.com/@highlightjs/cdn-assets@10.7.1/styles/default.min.css">
+  </head>
+  <body>
+    <p>::page{title="Hands-On Lab: Running Test With Nose"}</p>
+    <p><strong>Estimated time needed:</strong> 30 minutes</p>
+    <p>Welcome to the <strong>Running Tests with Nose</strong> lab. In this lab, you will learn how to use fundamental tools for running unit tests in Python.</p>
+    <h2>Learning Objectives</h2>
+    <p>After completing this lab, you will be able to:</p>
+    <ul>
+      <li>Install Nose, Pinocchio, and Coverage</li>
+      <li>Run unit tests with unittest and Nose</li>
+      <li>Produce color-coded test output</li>
+      <li>Add coverage reports to your test output</li>
+    </ul>
+    <p>::page{title="About Theia"}</p>
+    <p>Theia is an open-source IDE (Integrated Development Environment), that can be run on desktop or on cloud. You will be using the Theia IDE to do this lab. When you log into the Theia environment, you are presented with a 'dedicated computer on the cloud' exclusively for you. This is available to you as long as you work on the labs. Once you log off, this 'dedicated computer on the cloud' is deleted along with any files you may have created. So, it is a good idea to finish your labs in a single session. If you finish part of the lab and return to the Theia lab later, you may have to start from the beginning. Plan to work out all your Theia labs when you have the time to finish the complete lab in a single session.</p>
+    <p>::page{title="Set Up the Lab Environment"}</p>
+    <p>You have a little preparation to do before you can start the lab.</p>
+    <p>Open a terminal window by using the menu in the editor: Terminal > New Terminal.</p>
+    <p>
+      <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0241EN-SkillsNetwork/labs/module2/images/01_terminal.png" alt="Terminal" title="Terminal">
+    </p>
+    <p>In the terminal, if you are not already in the <code>/home/projects</code> folder, change to your project folder now.</p>
+    <pre><code class="hljs language-bash"><span class="hljs-built_in">cd</span> /home/project
+</code></pre>
+    <h2>Clone the Git Repository</h2>
+    <p>Now let's get the code that you need to test. To do this, you will use the <code>git clone</code> command to clone the git repository:</p>
+    <pre><code class="hljs language-bash">git <span class="hljs-built_in">clone</span> https://github.com/ibm-developer-skills-network/duwjx-tdd_bdd_PracticeCode.git
+</code></pre>
+    <p>Your output should look similar to the image below:</p>
+    <p>
+      <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0241EN-SkillsNetwork/labs/module2/images/01_git_clone.png" alt="Git Clone" title="Git Clone">
+    </p>
+    <h2>Change into the Lab Folder</h2>
+    <p>Once you have cloned the repository, change to the directory named: <code>duwjx-tdd_bdd_PracticeCode</code></p>
+    <pre><code class="hljs language-bash"><span class="hljs-built_in">cd</span> duwjx-tdd_bdd_PracticeCode
+</code></pre>
+    <p>To go into the first set of labs, change into the <code>labs/01_running_tests_with_nose/</code> directory:</p>
+    <pre><code class="hljs language-bash"><span class="hljs-built_in">cd</span> labs/01_running_tests_with_nose/
+</code></pre>
+    <p>List the contents of this directory to see the artifacts for this lab.</p>
+    <pre><code class="hljs language-bash">ls -l
+</code></pre>
+    <p>The directory should look like the listing below:</p>
+    <p>
+      <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0241EN-SkillsNetwork/labs/module2/images/01_ls.png" alt="List files" title="List files">
+    </p>
+    <p><em><strong>Note:</strong></em> <em>You must have a few exercise files that you will be running in the steps to follow.</em></p>
+    <p>You can also view the files cloned in the file explorer.</p>
+    <p>
+      <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0241EN-SkillsNetwork/labs/module2/images/01_file_explorer.png" alt="File explorer" title="File explorer">
+    </p>
+    <p>::page{title="Step 1: Working with unittest"}</p>
+    <p>You are ready to run your first tests. The <code>unittest</code> module is built into Python 3. You can invoke it through the Python interpreter by passing it the argument <code>-m</code> to run a module, and then <code>unittest</code> to give it the name of the module that you want to run.</p>
+    <p>In the terminal, run the following command to run the tests using the Python <code>unittest</code> package:</p>
+    <pre><code class="hljs language-bash">python3 -m unittest
+</code></pre>
+    <p>In the output you will see that all 11 tests passed as indicated by the 11 dots. Had there been any errors, you would have seen the letter <code>E</code> in place of the dot, representing an error in that test.</p>
+    <p>
+      <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0241EN-SkillsNetwork/labs/module2/images/01_unittest1.png" alt="Unittest 1" title="Unittest 1">
+    </p>
+    <p>::page{title="More verbose output"}</p>
+    <p>You can make the output more useful by adding the <code>-v</code> flag to turn on verbose mode. Run the command below for more useful output:</p>
+    <pre><code class="hljs language-bash">python3 -m unittest -v
+</code></pre>
+    <p>
+      <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0241EN-SkillsNetwork/labs/module2/images/01_unittest2.png" alt="Unittest 2" title="Unittest 2">
+    </p>
+    <p>Also notice that verbose mode gives you lots of duplicate information like the test function name followed by the docstring. Next, you will see how <code>nose</code> handles this.</p>
+    <p>::page{title="Step 2: Working with Nose"}</p>
+    <p>There is a test runner called <strong>nose</strong> that you can use to produce better test output. It is a Python package that you can install using the Python package manager <code>pip</code> utility.</p>
+    <p>Install Nose using <code>pip</code>:</p>
+    <pre><code class="hljs language-bash">pip install nose
+</code></pre>
+    <blockquote>
+      <p><em><strong>Note:</strong></em> <em>To refresh your memory on Nose, review the “Running Tests with Nose” video.</em></p>
+    </blockquote>
+    <p>To see verbose output from <code>nose</code>, run <code>nosetests -v</code>. The verbose output from Nose will return nicer output than from unittest because it only returns the docstring comments:</p>
+    <pre><code class="hljs language-bash">nosetests -v
+</code></pre>
+    <p>
+      <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0241EN-SkillsNetwork/labs/module2/images/01_nose.png" alt="Nose" title="Nose">
+    </p>
+    <p>::page{title="Step 3: Adding color with Pinocchio"}</p>
+    <p>Another way to make your output look better is with a plugin called <code>pinocchio</code>. With this plugin, you can get output as a specification similar to <strong>Rspec</strong> and also add color to the output. The color really gives you the Red/Green/Refactor workflow that TDD is famous for.</p>
+    <p>Install <code>pinocchio</code> using <code>pip</code>.</p>
+    <pre><code class="hljs language-bash">pip install pinocchio
+</code></pre>
+    <p>To get nicer formatting and a colorful output, run <code>nose</code> again and add the <code>--with-spec --spec-color</code> parameters:</p>
+    <pre><code class="hljs language-bash">nosetests --with-spec --spec-color
+</code></pre>
+    <blockquote>
+      <p>Note: In the output, green color indicates that all tests have passed. In case any test fails, the color for that test in the output will be red. Also note that you no longer need the <code>-v</code> because <code>--with-spec</code> already gives verbose output.</p>
+    </blockquote>
+    <p>
+      <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0241EN-SkillsNetwork/labs/module2/images/01_pinocchio.png" alt="Pinocchio" title="Pinocchio">
+    </p>
+    <p>::page{title="Step 4: Adding test coverage"}</p>
+    <p>To know if you’ve written enough tests, you need to know how many lines of code your tests cover. The <code>coverage</code> tool will calculate the number of lines of code executed during your tests, against the total lines of code, and report that as a percentage of coverage.</p>
+    <p>Install the <code>coverage</code> tool so that you can check your test coverage:</p>
+    <pre><code class="hljs language-bash">pip install coverage
+</code></pre>
+    <p>Next, call <code>coverage</code> through <code>nose</code> by adding the <code>--with-coverage</code> parameter.</p>
+    <pre><code class="hljs language-bash">nosetests --with-spec --spec-color --with-coverage
+</code></pre>
+    <p>
+      <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0241EN-SkillsNetwork/labs/module2/images/01_coverage.png" alt="Coverage" title="Coverage">
+    </p>
+    <p>::page{title="Step 5: Create missing coverage report"}</p>
+    <p>One useful feature of the coverage tool is that it can report which lines of code are missing coverage. With that information, you know the lines for which you need to add more test cases so that your testing executes those missing lines of code.</p>
+    <p>To get the missing coverage report, run the below command in the terminal:</p>
+    <pre><code class="hljs language-bash">coverage report -m
+</code></pre>
+    <p>
+      <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0241EN-SkillsNetwork/labs/module2/images/01_coverage_missing.png" alt="Coverage Missing" title="Coverage Missing">
+    </p>
+    <p>These test cases produce 100% coverage but notice that a new column has been added with the <strong>Missing</strong> heading. This is where any line numbers would show up for lines without test coverage.</p>
+    <p>::page{title="Step 6: Automating these parameters"}</p>
+    <p>Up until now you have typed out a lot of command parameters when running tests with nose. Alternatively, you can save all the parameters in a configuration file so that you don't have to type them in every time.</p>
+    <p>Create a new file named <code>setup.cfg</code> under <code>duwjx-tdd_bdd_PracticeCode/labs/01_running_tests_with_nose</code> directory. Here are the steps:</p>
+    <ol>
+      <li>On the window to the right, click the File menu and select the New File option, as shown in the image below:</li>
+    </ol>
+    <p>
+      <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0241EN-SkillsNetwork/labs/module2/images/01_new_file.png" alt="New File" title="New File">
+    </p>
+    <ol start="2">
+      <li>A pop-up appears with title New File, as shown in the image below. Enter <code>setup.cfg</code> as the file name and then click OK.</li>
+    </ol>
+    <p>
+      <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0241EN-SkillsNetwork/labs/module2/images/01_setup.png" alt="Setup" title="Setup">
+    </p>
+    <ol start="3">
+      <li>A file <code>setup.cfg</code> will be created for you.</li>
+    </ol>
+    <p>::openFile{path="/home/project/duwjx-tdd_bdd_PracticeCode/labs/01_running_tests_with_nose/setup.cfg"}</p>
+    <ol start="4">
+      <li>Copy and paste the below code into <code>setup.cfg</code>:</li>
+    </ol>
+    <pre><code class="hljs language-ini"><span class="hljs-section">[nosetests]</span>
+<span class="hljs-attr">verbosity</span>=<span class="hljs-number">2</span>
+<span class="hljs-attr">with-spec</span>=<span class="hljs-number">1</span>
+<span class="hljs-attr">spec-color</span>=<span class="hljs-number">1</span>
+<span class="hljs-attr">with-coverage</span>=<span class="hljs-number">1</span>
+<span class="hljs-attr">cover-erase</span>=<span class="hljs-number">1</span>
+<span class="hljs-attr">cover-package</span>=triangle
+
+<span class="hljs-section">[coverage:report]</span>
+<span class="hljs-attr">show_missing</span> = <span class="hljs-literal">True</span>
+</code></pre>
+    <blockquote>
+      <p>Do not forget to save the setup.cfg file.</p>
+    </blockquote>
+    <p>
+      <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0241EN-SkillsNetwork/labs/module2/images/01_setup_cfg.png" alt="Setup Config" title="Setup Config">
+    </p>
+    <p>::page{title="Step 7: Run nosetests with config"}</p>
+    <p>Now that you have established your <code>setup.cfg</code> file, go to your terminal and run <code>nosetests</code> without any parameters:</p>
+    <pre><code class="hljs language-bash">nosetests
+</code></pre>
+    <blockquote>
+      <p>Now you’ve applied all your parameters and gotten colorful output, by simply running <strong>nosetests</strong>.</p>
+    </blockquote>
+    <p>
+      <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0241EN-SkillsNetwork/labs/module2/images/01_nosetests.png" alt="Nosetests" title="Nosetests">
+    </p>
+    <p>::page{title="Conclusion"}</p>
+    <h3>Congratulations on Completing the Lab on Running Tests with Nose</h3>
+    <p>You now know how to run basic and verbose unit tests with Nose. You also know how to use the Pinocchio and Coverage plugins to produce nicer test output that really brings the Red/Green/Refactor workflow to life. Feel free to play around with these commands some more or move on to the next lesson.</p>
+    <p>Now you should use these tools in your own projects to produce actionable test cases reports.</p>
+    <h2>Author(s)</h2>
+    <p>John Rofrano</p>
+    <h2>Contributor(s)</h2>
+    <p>Srishti Srivastava</p>
+    <h2>Changelog</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Version</th>
+          <th>Changed by</th>
+          <th>Change Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>2022-04-08</td>
+          <td>1.0</td>
+          <td>Srishti</td>
+          <td>Create new lab</td>
+        </tr>
+        <tr>
+          <td>2022-04-17</td>
+          <td>1.1</td>
+          <td>Rofrano</td>
+          <td>Fixed image links</td>
+        </tr>
+        <tr>
+          <td>2022-04-17</td>
+          <td>1.2</td>
+          <td>Zach Rash</td>
+          <td>Proofreading and edits</td>
+        </tr>
+      </tbody>
+    </table>
+    <h2></h2>
+    <h3 align="center">© IBM Corporation 2022. All rights reserved.</h3>
+    <h3></h3>
+    <script>window.addEventListener('load', function() {
+snFaculty.inject();
+});</script>
+    <script src="https://skills-network-assets.s3.us.cloud-object-storage.appdomain.cloud/scripts/inject.43989f87.js"></script>
+    <script src="https://unpkg.com/@highlightjs/cdn-assets@10.7.1/highlight.min.js"></script>
+    <script src="https://unpkg.com/highlightjs-badge@0.1.9/highlightjs-badge.min.js"></script>
+  </body>
+</html>

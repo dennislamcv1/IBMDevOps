@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://unpkg.com/@highlightjs/cdn-assets@10.7.1/styles/default.min.css">
+  </head>
+  <body>
+    <p>::page{title="Hands-on Lab: Using Factories and Fakes"}</p>
+    <p><strong>Estimated time needed:</strong> 30 minutes</p>
+    <p>Welcome to the <strong>Using Factories and Fakes</strong> lab. You often need fake data to test against. Of course, you can use some hard-coded sample data in your tests. But what if you need hundreds, or even thousands, of records of test data? That can get tedious to create and maintain.</p>
+    <p>In this lab, you're going to see how to use a popular Python package called <strong>FactoryBoy</strong> to provide fake data for testing.</p>
+    <h2>Learning Objectives</h2>
+    <p>After completing this lab, you will be able to:</p>
+    <ul>
+      <li>Summarize how to create a Factory class</li>
+      <li>Use the Faker class and Fuzzy attributes to provide realistic test data</li>
+      <li>Write test cases that use Factory classes to provide test data</li>
+    </ul>
+    <p>::page{title="About Theia"}</p>
+    <p>Theia is an open-source IDE (Integrated Development Environment) that can be run on desktop or on cloud. You will be using the Theia IDE to do this lab. When you log into the Theia environment, you are presented with a 'dedicated computer on the cloud' exclusively for you. This is available to you as long as you work on the labs. Once you log off, this 'dedicated computer on the cloud' is deleted along with any files you may have created. So, it is a good idea to finish your labs in a single session. If you finish part of the lab and return to the Theia lab later, you may have to start from the beginning. Plan to work out all your Theia labs when you have the time to finish the complete lab in a single session.</p>
+    <p>::page{title="Set Up the Lab Environment"}</p>
+    <p>You have a little preparation to do before you can start the lab.</p>
+    <h2>Open a Terminal</h2>
+    <p>Open a terminal window by using the menu in the editor: Terminal > New Terminal.</p>
+    <p>In the terminal, if you are not already in the <code>/home/projects</code> folder, change to your project folder now.</p>
+    <pre><code class="hljs language-bash"><span class="hljs-built_in">cd</span> /home/project
+</code></pre>
+    <h2>Clone the Code Repo</h2>
+    <p>Now get the code that you need to test. To do this, use the <code>git clone</code> command to clone the git repository:</p>
+    <pre><code class="hljs language-bash">git <span class="hljs-built_in">clone</span> https://github.com/ibm-developer-skills-network/duwjx-tdd_bdd_PracticeCode.git
+</code></pre>
+    <h2>Change into the Lab Folder</h2>
+    <p>Once you have cloned the repository, change to the lab directory:</p>
+    <pre><code class="hljs language-bash"><span class="hljs-built_in">cd</span> duwjx-tdd_bdd_PracticeCode/labs/05_factories_and_fakes
+</code></pre>
+    <h2>Install Python Dependencies</h2>
+    <p>The final preparation step is to use <code>pip</code> to install the Python packages needed for the lab:</p>
+    <pre><code class="hljs language-bash">pip install -r requirements.txt
+</code></pre>
+    <p>You are now ready to start the lab.</p>
+    <h3>Optional</h3>
+    <p>If working in the terminal becomes difficult because the command prompt is very long, you can shorten the prompt using the following command:</p>
+    <pre><code class="hljs language-bash"><span class="hljs-built_in">export</span> PS1=<span class="hljs-string">"[\[\033[01;32m\]\u\[\033[00m\]: \[\033[01;34m\]\W\[\033[00m\]]\$ "</span>
+</code></pre>
+    <p></p>
+    <p>::page{title="Navigate to the Code"}</p>
+    <p>In the IDE, navigate to the <code>duwjx-tdd_bdd_PracticeCode/labs/05_factories_and_fakes</code> folder. This folder contains all of the source code that you will use for this lab.</p>
+    <pre><code class="hljs language-arduino">duwjx-tdd_bdd_PracticeCode
+└── labs
+    └── <span class="hljs-number">05</span>_factories_and_fakes
+</code></pre>
+    <p>
+      <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0241EN-SkillsNetwork/labs/module3/images/05_factories_fakes_folder.png" alt="Lab Folder" title="Lab Folder">
+    </p>
+    <p>::page{title="Step 1: Run nosetests"}</p>
+    <p>Before you make any changes to your code, you should check that all of the test cases are passing. Otherwise, if you encounter failing test cases later, you won't know if you caused them to fail or if they were failing before you changed anything.</p>
+    <p>Run <code>nosetests</code> and make sure that all of the tests pass with <strong>100%</strong> test coverage.</p>
+    <pre><code class="hljs language-bash">nosetests
+</code></pre>
+    <p>You should see the following output:</p>
+    <p>
+      <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0241EN-SkillsNetwork/labs/module3/images/05_step1_nosetests.png" alt="Nosetests output" title="Nosetests output">
+    </p>
+    <p>All tests are colored green! This means they all pass, so you can now move on to modifying the code.</p>
+    <p>::page{title="Step 2: Create an AccountFactory class"}</p>
+    <p>In this step, you will create an <code>AccountFactory</code> class.</p>
+    <p>Open the <code>models/account.py</code> file to familiarize yourself with the attributes of the <code>Account</code> class. These are the same attributes that you will need to add to the <code>AccountFactory</code> class.</p>
+    <p>::openFile{path="/home/project/duwjx-tdd_bdd_PracticeCode/labs/05_factories_and_fakes/models/account.py"}</p>
+    <p>Open the <code>tests/factories.py</code> file in the IDE editor. This is the file in which you will add the attributes of the <code>Account</code> class to the <code>AccountFactory</code> class.</p>
+    <p>::openFile{path="/home/project/duwjx-tdd_bdd_PracticeCode/labs/05_factories_and_fakes/tests/factories.py"}</p>
+    <p>You’ll want to take advantage of the fact that <strong>FactoryBoy</strong> comes with the <strong>Faker</strong> class. This class has <a href="https://faker.readthedocs.io/en/master/providers/baseprovider.html?utm_medium=Exinfluencer&#x26;utm_source=Exinfluencer&#x26;utm_content=000026UJ&#x26;utm_term=10006555&#x26;utm_id=NA-SkillsNetwork-Channel-SkillsNetworkCoursesIBMCD0241ENSkillsNetwork33491652-2022-01-01" target="_blank" rel="external">Fake providers</a> and a number of <a href="https://factoryboy.readthedocs.io/en/stable/fuzzy.html?utm_medium=Exinfluencer&#x26;utm_source=Exinfluencer&#x26;utm_content=000026UJ&#x26;utm_term=10006555&#x26;utm_id=NA-SkillsNetwork-Channel-SkillsNetworkCoursesIBMCD0241ENSkillsNetwork33491652-2022-01-01" target="_blank" rel="external">Fuzzy attributes</a>.</p>
+    <p>Here are some useful providers for the Faker class:</p>
+    <pre><code class="hljs language-stylus"><span class="hljs-function"><span class="hljs-title">Faker</span><span class="hljs-params">(<span class="hljs-string">"name"</span>)</span></span>
+<span class="hljs-function"><span class="hljs-title">Faker</span><span class="hljs-params">(<span class="hljs-string">"email"</span>)</span></span>
+<span class="hljs-function"><span class="hljs-title">Faker</span><span class="hljs-params">(<span class="hljs-string">"phone_number"</span>)</span></span>
+</code></pre>
+    <p>Here are some Fuzzy attributes you might find useful:</p>
+    <pre><code class="hljs language-isbl"><span class="hljs-function"><span class="hljs-title">FuzzyChoice</span>(<span class="hljs-variable">choices</span>=[<span class="hljs-variable"><span class="hljs-literal">True</span></span>, <span class="hljs-variable"><span class="hljs-literal">False</span></span>])</span>
+<span class="hljs-function"><span class="hljs-title">FuzzyDate</span>(<span class="hljs-title">date</span>(<span class="hljs-number">2008</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>))</span>
+</code></pre>
+    <h2>Your Task</h2>
+    <p>Use the <strong>Faker</strong> providers and <strong>Fuzzy</strong> attributes to create fake data for the <code>id</code>, <code>name</code>, <code>email</code>, <code>phone_number</code>, <code>disabled</code>, and <code>date_joined</code> fields by adding them to the <code>AccountFactory</code> class.</p>
+    <h2>Solution</h2>
+    <details>
+      <summary>Click here for the solution.</summary>
+      <p>In <code>factories.py</code>, overwrite the code from line 6 onward by pasting in the following code in its place. Be sure to indent properly.</p>
+      <pre><code class="hljs language-python"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">AccountFactory</span>(<span class="hljs-params">factory.Factory</span>):</span>
+    <span class="hljs-string">""" Creates fake Accounts """</span>
+
+    <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Meta</span>:</span>
+        model = Account
+
+    <span class="hljs-built_in">id</span> = factory.<span class="hljs-type">Sequence</span>(<span class="hljs-keyword">lambda</span> n: n)
+    name = factory.Faker(<span class="hljs-string">"name"</span>)
+    email = factory.Faker(<span class="hljs-string">"email"</span>)
+    phone_number = factory.Faker(<span class="hljs-string">"phone_number"</span>)
+    disabled = FuzzyChoice(choices=[<span class="hljs-literal">True</span>, <span class="hljs-literal">False</span>])
+    date_joined = FuzzyDate(date(<span class="hljs-number">2008</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>))
+</code></pre>
+    </details>
+    <p>::page{title="Step 3: Update the Test Cases"}</p>
+    <p>In this step, you will update the test cases to use the new <code>AccountFactory</code> that you created in the previous step.</p>
+    <p>Open the <code>tests/test_account.py</code> file. Then add the following <code>import</code> near the top of the file, after the other <code>imports</code>. This will import your new <code>AccountFactory</code> class from the <code>factories</code> module:</p>
+    <p>::openFile{path="/home/project/duwjx-tdd_bdd_PracticeCode/labs/05_factories_and_fakes/tests/test_account.py"}</p>
+    <pre><code class="hljs language-python"><span class="hljs-keyword">from</span> factories <span class="hljs-keyword">import</span> AccountFactory
+</code></pre>
+    <p>In the remaining steps, your goal is to change all references to <code>Account</code> so that they now use <code>AccountFactory</code>. You will do this one test at a time.</p>
+    <h2>Your Task</h2>
+    <p>Start with the <code>test_create_all_accounts()</code> test:</p>
+    <ul>
+      <li>Remove the references to <code>ACCOUNT_DATA</code> and <code>Account</code> and replace them with <code>AccountFactory</code>.</li>
+      <li>Change the code to create ten Accounts.</li>
+    </ul>
+    <h2>Solution</h2>
+    <details>
+      <summary>Click here for the solution.</summary>
+      <pre><code class="hljs language-python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">test_create_all_accounts</span>(<span class="hljs-params">self</span>):</span>
+    <span class="hljs-string">""" Test creating multiple Accounts """</span>
+    <span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">10</span>):
+        account = AccountFactory()
+        account.create()
+    self.assertEqual(<span class="hljs-built_in">len</span>(Account.<span class="hljs-built_in">all</span>()), <span class="hljs-number">10</span>)
+</code></pre>
+    </details>
+    <h2>Run the Tests</h2>
+    <p>Run <code>nosetests</code> to make sure the test cases still pass.</p>
+    <pre><code class="hljs language-bash">nosetests
+</code></pre>
+    <p>::page{title="Step 4: Update test_create_an_account()"}</p>
+    <p>In this step, you will update the <code>test_create_an_account()</code> test.</p>
+    <h2>Your Task</h2>
+    <p>In test_account.py, modify the code in the <code>test_create_an_account()</code> test to remove the references to <code>ACCOUNT_DATA</code> and <code>Account</code> and replace them with <code>AccountFactory</code>.</p>
+    <h2>Solution</h2>
+    <details>
+      <summary>Click here for the solution.</summary>
+      <pre><code class="hljs language-python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">test_create_an_account</span>(<span class="hljs-params">self</span>):</span>
+    <span class="hljs-string">""" Test Account creation using known data """</span>
+    account = AccountFactory()
+    account.create()
+    self.assertEqual(<span class="hljs-built_in">len</span>(Account.<span class="hljs-built_in">all</span>()), <span class="hljs-number">1</span>)
+</code></pre>
+    </details>
+    <h2>Run the Tests</h2>
+    <p>Run <code>nosetests</code> to make sure the test cases still pass.</p>
+    <pre><code class="hljs language-bash">nosetests
+</code></pre>
+    <p>::page{title="Step 5: Update test_to_dict()"}</p>
+    <p>In this step, you will update the <code>test_to_dict()</code> test.</p>
+    <h2>Your Task</h2>
+    <p>In test_account.py, modify the code in the <code>test_to_dict()</code> test to remove the references to <code>ACCOUNT_DATA</code> and <code>Account</code> and replace them with <code>AccountFactory</code>.</p>
+    <h2>Solution</h2>
+    <details>
+      <summary>Click here for the solution.</summary>
+      <pre><code class="hljs language-python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">test_to_dict</span>(<span class="hljs-params">self</span>):</span>
+    <span class="hljs-string">""" Test account to dict """</span>
+    account = AccountFactory()
+    result = account.to_dict()
+    self.assertEqual(account.name, result[<span class="hljs-string">"name"</span>])
+    self.assertEqual(account.email, result[<span class="hljs-string">"email"</span>])
+    self.assertEqual(account.phone_number, result[<span class="hljs-string">"phone_number"</span>])
+    self.assertEqual(account.disabled, result[<span class="hljs-string">"disabled"</span>])
+    self.assertEqual(account.date_joined, result[<span class="hljs-string">"date_joined"</span>])
+</code></pre>
+    </details>
+    <h2>Run the Tests</h2>
+    <p>Run <code>nosetests</code> to make sure the test cases still pass.</p>
+    <pre><code class="hljs language-bash">nosetests
+</code></pre>
+    <p>::page{title="Step 6: Update test_from_dict()"}</p>
+    <p>In this step, you will update the <code>test_from_dict()</code> test.</p>
+    <h2>Your Task</h2>
+    <p>In test_account.py, modify the code in the <code>test_from_dict()</code> test to remove the references to <code>ACCOUNT_DATA</code> and <code>Account</code> and replace them with <code>AccountFactory</code>.</p>
+    <h2>Solution</h2>
+    <details>
+      <summary>Click here for the solution.</summary>
+      <pre><code class="hljs language-python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">test_from_dict</span>(<span class="hljs-params">self</span>):</span>
+    <span class="hljs-string">""" Test account from dict """</span>
+    data = AccountFactory().to_dict()
+    account = Account()
+    account.from_dict(data)
+    self.assertEqual(account.name, data[<span class="hljs-string">"name"</span>])
+    self.assertEqual(account.email, data[<span class="hljs-string">"email"</span>])
+    self.assertEqual(account.phone_number, data[<span class="hljs-string">"phone_number"</span>])
+    self.assertEqual(account.disabled, data[<span class="hljs-string">"disabled"</span>])
+</code></pre>
+    </details>
+    <h2>Run the Tests</h2>
+    <p>Run <code>nosetests</code> to make sure the test cases still pass.</p>
+    <pre><code class="hljs language-bash">nosetests
+</code></pre>
+    <p>::page{title="Step 7: Update test_update_an_account()"}</p>
+    <p>In this step, you will update the <code>test_update_an_account()</code> test.</p>
+    <h2>Your Task</h2>
+    <p>In test_account.py, modify the code to in the <code>test_update_an_account()</code> test to remove the references to <code>ACCOUNT_DATA</code> and <code>Account</code> and replace with <code>AccountFactory</code>.</p>
+    <h2>Solution</h2>
+    <details>
+      <summary>Click here for the solution.</summary>
+      <pre><code class="hljs language-python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">test_update_an_account</span>(<span class="hljs-params">self</span>):</span>
+    <span class="hljs-string">""" Test Account update using known data """</span>
+    account = AccountFactory()
+    account.create()
+    self.assertIsNotNone(account.<span class="hljs-built_in">id</span>)
+    account.name = <span class="hljs-string">"Rumpelstiltskin"</span>
+    account.update()
+    found = Account.find(account.<span class="hljs-built_in">id</span>)
+    self.assertEqual(found.name, account.name)
+</code></pre>
+    </details>
+    <h2>Run the Tests</h2>
+    <p>Run <code>nosetests</code> to make sure the test cases still pass.</p>
+    <pre><code class="hljs language-bash">nosetests
+</code></pre>
+    <p>::page{title="Step 8: Update test_invalid_id_on_update()"}</p>
+    <p>In this step, you will update the <code>test_invalid_id_on_update()</code> test.</p>
+    <h2>Your Task</h2>
+    <p>In test_account.py, modify the code in the <code>test_invalid_id_on_update()</code> test to remove the references to <code>ACCOUNT_DATA</code> and <code>Account</code> and replace them with <code>AccountFactory</code>.</p>
+    <h2>Solution</h2>
+    <details>
+      <summary>Click here for the solution.</summary>
+      <pre><code class="hljs language-python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">test_invalid_id_on_update</span>(<span class="hljs-params">self</span>):</span>
+    <span class="hljs-string">""" Test invalid ID update """</span>
+    account = AccountFactory()
+    account.<span class="hljs-built_in">id</span> = <span class="hljs-literal">None</span>
+    self.assertRaises(DataValidationError, account.update)
+</code></pre>
+    </details>
+    <h2>Nosetest</h2>
+    <p>Run <code>nosetests</code> to make sure the test cases still pass.</p>
+    <pre><code class="hljs language-bash">nosetests
+</code></pre>
+    <p>::page{title="Step 9: Update test_delete_an_account()"}</p>
+    <p>In this step, you will update the <code>test_delete_an_account()</code> test.</p>
+    <h2>Your Task</h2>
+    <p>In test_account.py, modify the code in the <code>test_delete_an_account()</code> test to remove the references to <code>ACCOUNT_DATA</code> and <code>Account</code> and replace them with <code>AccountFactory</code>.</p>
+    <h2>Solution</h2>
+    <details>
+      <summary>Click here for the solution.</summary>
+      <pre><code class="hljs language-python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">test_delete_an_account</span>(<span class="hljs-params">self</span>):</span>
+    <span class="hljs-string">""" Test Account update using known data """</span>
+    account = AccountFactory()
+    account.create()
+    self.assertEqual(<span class="hljs-built_in">len</span>(Account.<span class="hljs-built_in">all</span>()), <span class="hljs-number">1</span>)
+    account.delete()
+    self.assertEqual(<span class="hljs-built_in">len</span>(Account.<span class="hljs-built_in">all</span>()), <span class="hljs-number">0</span>)
+</code></pre>
+    </details>
+    <h2>Nosetest</h2>
+    <p>Run <code>nosetests</code> to make sure the test cases still pass.</p>
+    <pre><code class="hljs language-bash">nosetests
+</code></pre>
+    <p>::page{title="Step 10: Remove ACCOUNT_DATA references"}</p>
+    <p>Since you have replaced all instances of <code>ACCOUNT_DATA</code> with <code>AccountFactory</code>, you can clean up the code. In test_account.py, you will remove all remaining references to <code>ACCOUNT_DATA</code> and remove the lines that load it from the JSON data file.</p>
+    <h2>Task A</h2>
+    <p>Remove line 31 from <code>setUp()</code>:</p>
+    <pre><code class="hljs language-python">self.rand = randrange(<span class="hljs-number">0</span>, <span class="hljs-built_in">len</span>(ACCOUNT_DATA))
+</code></pre>
+    <details>
+      <summary>Click here for the solution.</summary>
+      <pre><code class="hljs language-python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">setUp</span>(<span class="hljs-params">self</span>):</span>
+    <span class="hljs-string">"""Truncate the tables"""</span>
+    db.session.query(Account).delete()
+    db.session.commit()
+</code></pre>
+    </details>
+    <h2>Task B</h2>
+    <p>Remove lines 20-22 from <code>setUpClass()</code>:</p>
+    <pre><code class="hljs language-python"><span class="hljs-keyword">global</span> ACCOUNT_DATA
+<span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(<span class="hljs-string">'tests/fixtures/account_data.json'</span>) <span class="hljs-keyword">as</span> json_data:
+    ACCOUNT_DATA = json.load(json_data)
+</code></pre>
+    <details>
+      <summary>Click here for the solution.</summary>
+      <pre><code class="hljs language-python"><span class="hljs-meta">@classmethod</span>
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">setUpClass</span>(<span class="hljs-params">cls</span>):</span>
+    <span class="hljs-string">""" Load data needed by tests """</span>
+    db.create_all()  <span class="hljs-comment"># make our sqlalchemy tables</span>
+</code></pre>
+    </details>
+    <p>You can also delete line <code>11</code> that declares <code>ACCOUNT_DATA</code>:</p>
+    <pre><code class="hljs language-python">ACCOUNT_DATA = {}   <span class="hljs-comment"># delete this line</span>
+</code></pre>
+    <h2>Task C</h2>
+    <p>Finally, delete lines 4-5, which import <code>json</code> and <code>randrange</code>:</p>
+    <pre><code class="hljs language-python"><span class="hljs-keyword">import</span> json
+<span class="hljs-keyword">from</span> random <span class="hljs-keyword">import</span> randrange
+</code></pre>
+    <h2>Run the Tests</h2>
+    <p>Save your changes and run <code>nosetests</code> one last time to make sure that the test cases still pass.</p>
+    <pre><code class="hljs language-bash">nosetests
+</code></pre>
+    <p>You should see the following results:</p>
+    <pre><code class="hljs language-asciidoc"><span class="hljs-section">Name                 Stmts   Miss  Cover   Missing
+--------------------------------------------------</span>
+models/<span class="hljs-emphasis">__init__</span>.py       6      0   100%
+<span class="hljs-section">models/account.py       40      0   100%
+--------------------------------------------------</span>
+<span class="hljs-section">TOTAL                   46      0   100%
+----------------------------------------------------------------------</span>
+Ran 8 tests in 0.548s
+</code></pre>
+    <p>::page{title="Conclusion"}</p>
+    <h3>Congratulations on Completing the Factories and Fakes Lab</h3>
+    <p>Hopefully you can now build a factory for your classes using <strong>Faker</strong> and <strong>Fuzzy</strong> attributes. You can also use a factory class in your test cases to provide unlimited test data.</p>
+    <p>Try using a factory in your personal projects. Anywhere you have created static data to test your code, you can substitute dynamic factories to make testing more robust.</p>
+    <h2>Author(s)</h2>
+    <p>John Rofrano</p>
+    <h2>Changelog</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Version</th>
+          <th>Changed by</th>
+          <th>Change Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>2022-04-15</td>
+          <td>1.0</td>
+          <td>Rofrano</td>
+          <td>Create new lab</td>
+        </tr>
+        <tr>
+          <td>2022-04-16</td>
+          <td>1.1</td>
+          <td>Zach Rash</td>
+          <td>Proofread and edit</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+    <h2></h2>
+    <h3 align="center">© IBM Corporation 2022. All rights reserved.</h3>
+    <h3></h3>
+    <script>window.addEventListener('load', function() {
+snFaculty.inject();
+});</script>
+    <script src="https://skills-network-assets.s3.us.cloud-object-storage.appdomain.cloud/scripts/inject.43989f87.js"></script>
+    <script src="https://unpkg.com/@highlightjs/cdn-assets@10.7.1/highlight.min.js"></script>
+    <script src="https://unpkg.com/highlightjs-badge@0.1.9/highlightjs-badge.min.js"></script>
+  </body>
+</html>

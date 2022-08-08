@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://unpkg.com/@highlightjs/cdn-assets@10.7.1/styles/default.min.css">
+  </head>
+  <body>
+    <p>::page{title="Hands-On Lab: Running Test Cases with Coverage"}</p>
+    <p><strong>Estimated time needed:</strong> 30 minutes</p>
+    <p>Welcome to the <strong>Running Test Cases with Coverage</strong> lab. Test coverage is the percentage of lines of code that execute during all of the tests. High test coverage gives you confidence that a large amount of code is executed during testing. In turn, the more lines of code that execute through tests, the more confident you can be that your code works as expected.</p>
+    <p>In this lab, you will learn how to improve your test coverage by generating a test coverage report, interpreting the report to determine which lines of code do not have test cases, and writing test cases to cover those lines.</p>
+    <h2>Learning Objectives</h2>
+    <p>After completing this lab, you will be able to:</p>
+    <ul>
+      <li>Generate a test coverage report</li>
+      <li>Interpret a test coverage report to determine which lines of code are not covered by test cases</li>
+      <li>Write enough new test cases to reach 100% test coverage</li>
+    </ul>
+    <p>::page{title="About Theia"}</p>
+    <p>Theia is an open-source IDE (Integrated Development Environment) that can be run on desktop or on cloud. You will be using the Theia IDE to do this lab. When you log into the Theia environment, you are presented with a 'dedicated computer on the cloud' exclusively for you. This is available to you as long as you work on the labs. Once you log off, this 'dedicated computer on the cloud' is deleted along with any files you may have created. So, it is a good idea to finish your labs in a single session. If you finish part of the lab and return to the Theia lab later, you may have to start from the beginning. Plan to work out all your Theia labs when you have the time to finish the complete lab in a single session.</p>
+    <p>::page{title="Set Up the Lab Environment"}</p>
+    <p>You have a little preparation to do before you can start the lab.</p>
+    <h2>Open a Terminal</h2>
+    <p>Open a terminal window by using the menu in the editor: Terminal > New Terminal.</p>
+    <p>In the terminal, if you are not already in the <code>/home/projects</code> folder, change to your project folder now.</p>
+    <pre><code class="hljs language-bash"><span class="hljs-built_in">cd</span> /home/project
+</code></pre>
+    <h2>Clone the Code Repo</h2>
+    <p>Now get the code that you need to test. To do this, use the <code>git clone</code> command to clone the git repository:</p>
+    <pre><code class="hljs language-bash">git <span class="hljs-built_in">clone</span> https://github.com/ibm-developer-skills-network/duwjx-tdd_bdd_PracticeCode.git
+</code></pre>
+    <h2>Change into the Lab Folder</h2>
+    <p>Once you have cloned the repository, change to the lab directory:</p>
+    <pre><code class="hljs language-bash"><span class="hljs-built_in">cd</span> duwjx-tdd_bdd_PracticeCode/labs/04_test_coverage
+</code></pre>
+    <h2>Install Python Dependencies</h2>
+    <p>The final preparation step is to use <code>pip</code> to install the Python packages needed for the lab:</p>
+    <pre><code class="hljs language-bash">pip install -r requirements.txt
+</code></pre>
+    <p>You are now ready to start the lab.</p>
+    <h3>Optional</h3>
+    <p>If working in the terminal becomes difficult because the command prompt is very long, you can shorten the prompt using the following command:</p>
+    <pre><code class="hljs language-bash"><span class="hljs-built_in">export</span> PS1=<span class="hljs-string">"[\[\033[01;32m\]\u\[\033[00m\]: \[\033[01;34m\]\W\[\033[00m\]]\$ "</span>
+</code></pre>
+    <p>::page{title="Open the Code Editor"}</p>
+    <p>In the IDE, navigate to the <code>duwjx-tdd_bdd_PracticeCode/labs/04_test_coverage</code> folder. This folder contains all of the source code that you will use for this lab.</p>
+    <pre><code class="hljs language-arduino">duwjx-tdd_bdd_PracticeCode
+└── labs
+    └── <span class="hljs-number">04</span>_test_coverage
+</code></pre>
+    <p>You will do all your editing work in the file <code>tests/test_account.py</code>. To get started, click the button below to open up that file in the code editor.</p>
+    <p>::openFile{path="/home/project/duwjx-tdd_bdd_PracticeCode/labs/04_test_coverage/tests/test_account.py"}</p>
+    <p>::page{title="Start by Running the Tests"}</p>
+    <p>Before writing any code, you should always check that the test cases are passing. Otherwise when they fail, you won't know if you broken the code, or if the code was broken before you started.</p>
+    <p>Let's run <code>nosetests</code> and produce a <code>coverage</code> report to identify the lines that are missing code coverage:</p>
+    <pre><code class="hljs language-bash">nosetests
+</code></pre>
+    <p>Your initial report should look like this:</p>
+    <pre><code class="hljs language-asciidoc"><span class="hljs-section">Name                 Stmts   Miss  Cover   Missing
+--------------------------------------------------</span>
+models/<span class="hljs-emphasis">__init__</span>.py       6      0   100%
+<span class="hljs-section">models/account.py       40     13    68%   26, 30, 34-35, 45-48, 52-54, 74-75
+--------------------------------------------------</span>
+<span class="hljs-section">TOTAL                   46     13    72%
+----------------------------------------------------------------------</span>
+Ran 2 tests in 0.349s
+</code></pre>
+    <p>You are starting with <strong>72%</strong> test coverage. Your goal is to reach <strong>100%</strong>! Let's go look at the first missed line, line <strong>26</strong> in <code>account.py</code> to see if we can write a test case for it.</p>
+    <p>::page{title="Step 1: Missing Line 26"}</p>
+    <p>The coverage report indicated that line <code>26</code> in <code>account.py</code> doesn't have a test case that executes it.</p>
+    <h2>Your Task</h2>
+    <p>To increase your test coverage, first investigate line <code>26</code> in <code>models/account.py</code>. This file is in the <code>model</code> package from the root of the repo.</p>
+    <p>To open <code>models/account.py</code>, you can click the button below:</p>
+    <p>::openFile{path="/home/project/duwjx-tdd_bdd_PracticeCode/labs/04_test_coverage/models/account.py"}</p>
+    <p>You should see the following code on lines <code>25</code> and <code>26</code>.</p>
+    <pre><code class="hljs language-python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__repr__</span>(<span class="hljs-params">self</span>):</span>
+    <span class="hljs-keyword">return</span> <span class="hljs-string">'&#x3C;Account %r>'</span> % self.name
+</code></pre>
+    <p>Notice that this method is one of the magic methods that is called to represent the class when printing it out.</p>
+    <p>Your task is to add a new test case in <code>test_account.py</code> that calls the <code>__repr__()</code> method on an Account.</p>
+    <details>
+      <summary>Click here for a hint.</summary>
+      <blockquote>
+        <p>Call the <code>__repr__()</code> method by using the <code>str()</code> function on <code>account</code>.</p>
+      </blockquote>
+    </details>
+    <h2>Solution</h2>
+    <details>
+      <summary>Click here for the solution.</summary>
+      <p>Paste this code into <code>test_account.py</code>. Be sure to indent properly.</p>
+      <pre><code class="hljs language-python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">test_repr</span>(<span class="hljs-params">self</span>):</span>
+    <span class="hljs-string">"""Test the representation of an account"""</span>
+    account = Account()
+    account.name = <span class="hljs-string">"Foo"</span>
+    self.assertEqual(<span class="hljs-built_in">str</span>(account), <span class="hljs-string">"&#x3C;Account 'Foo'>"</span>)
+</code></pre>
+    </details>
+    <p>::page{title="Step 2: Missing Line 30"}</p>
+    <p>Run <code>nosetests</code> again to ensure line 26 is now covered through testing and to determine the next line of code for which you should write a new test case:</p>
+    <pre><code class="hljs language-bash">nosetests
+</code></pre>
+    <p>If you completed the previous step correctly, your test coverage report should look like this:</p>
+    <pre><code class="hljs language-asciidoc"><span class="hljs-section">Name                 Stmts   Miss  Cover   Missing
+--------------------------------------------------</span>
+models/<span class="hljs-emphasis">__init__</span>.py       6      0   100%
+<span class="hljs-section">models/account.py       40     12    70%   30, 34-35, 45-48, 52-54, 74-75
+--------------------------------------------------</span>
+<span class="hljs-section">TOTAL                   46     12    74%
+----------------------------------------------------------------------</span>
+Ran 3 tests in 0.387s
+</code></pre>
+    <p>Note that your overall test coverage increased from 72% to 74% and the new report does not list line <code>26</code> in the Missing column. The next line of code listed under that column is <code>30</code>. Examine this line in <code>account.py</code> to find out what that code is doing.</p>
+    <h2>Your Task</h2>
+    <p>You should see the following code on lines <code>28</code> through <code>30</code>.</p>
+    <pre><code class="hljs language-python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">to_dict</span>(<span class="hljs-params">self</span>) -> <span class="hljs-built_in">dict</span>:</span>
+    <span class="hljs-string">"""Serializes the class as a dictionary"""</span>
+    <span class="hljs-keyword">return</span> {c.name: <span class="hljs-built_in">getattr</span>(self, c.name) <span class="hljs-keyword">for</span> c <span class="hljs-keyword">in</span> self.__table__.columns}
+</code></pre>
+    <p>Notice that this code is the <code>to_dict()</code> method. Your task is to add a new test case in <code>test_account.py</code> that executes the <code>to_dict()</code> method on an Account.</p>
+    <h2>Solution</h2>
+    <details>
+      <summary>Click here for the solution.</summary>
+      <p>Paste this code into <code>test_account.py</code>. Be sure to indent properly.</p>
+      <pre><code class="hljs language-python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">test_to_dict</span>(<span class="hljs-params">self</span>):</span>
+    <span class="hljs-string">""" Test account to dict """</span>
+    data = ACCOUNT_DATA[self.rand] <span class="hljs-comment"># get a random account</span>
+    account = Account(**data)
+    result = account.to_dict()
+    self.assertEqual(account.name, result[<span class="hljs-string">"name"</span>])
+    self.assertEqual(account.email, result[<span class="hljs-string">"email"</span>])
+    self.assertEqual(account.phone_number, result[<span class="hljs-string">"phone_number"</span>])
+    self.assertEqual(account.disabled, result[<span class="hljs-string">"disabled"</span>])
+    self.assertEqual(account.date_joined, result[<span class="hljs-string">"date_joined"</span>])
+</code></pre>
+    </details>
+    <p>::page{title="Step 3: Missing Lines 34-35"}</p>
+    <p>Run <code>nosetests</code> again to ensure line 30 is now covered through testing and to determine the next line of code for which you should write a new test case:</p>
+    <pre><code class="hljs language-bash">nosetests
+</code></pre>
+    <p>If you completed the previous steps correctly, your test coverage report should look like this:</p>
+    <pre><code class="hljs language-asciidoc"><span class="hljs-section">Name                 Stmts   Miss  Cover   Missing
+--------------------------------------------------</span>
+models/<span class="hljs-emphasis">__init__</span>.py       6      0   100%
+<span class="hljs-section">models/account.py       40     11    72%   34-35, 45-48, 52-54, 74-75
+--------------------------------------------------</span>
+<span class="hljs-section">TOTAL                   46     11    76%
+----------------------------------------------------------------------</span>
+Ran 4 tests in 0.368s
+</code></pre>
+    <p>Note that your overall test coverage increased from 74% to 76%. The next lines of code listed in the Missing column are <code>34-35</code>. Examine these lines in <code>account.py</code> to find out what that code is doing.</p>
+    <h2>Your Task</h2>
+    <p>You should see the following code on lines <code>34</code> and<code>35</code>.</p>
+    <pre><code class="hljs language-python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">from_dict</span>(<span class="hljs-params">self, data: <span class="hljs-built_in">dict</span></span>) -> <span class="hljs-literal">None</span>:</span>
+    <span class="hljs-string">"""Sets attributes from a dictionary"""</span>
+    <span class="hljs-keyword">for</span> key, value <span class="hljs-keyword">in</span> data.items():
+        <span class="hljs-built_in">setattr</span>(self, key, value)
+</code></pre>
+    <p>Notice that this code is the <code>from_dict()</code> method. Your task is to add a new test case in <code>test_account.py</code> that executes the <code>from_dict()</code> method on an Account.</p>
+    <h2>Solution</h2>
+    <details>
+      <summary>Click here for the solution.</summary>
+      <p>Paste this code into <code>test_account.py</code>. Be sure to indent properly.</p>
+      <pre><code class="hljs language-python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">test_from_dict</span>(<span class="hljs-params">self</span>):</span>
+    <span class="hljs-string">""" Test account from dict """</span>
+    data = ACCOUNT_DATA[self.rand] <span class="hljs-comment"># get a random account</span>
+    account = Account()
+    account.from_dict(data)
+    self.assertEqual(account.name, data[<span class="hljs-string">"name"</span>])
+    self.assertEqual(account.email, data[<span class="hljs-string">"email"</span>])
+    self.assertEqual(account.phone_number, data[<span class="hljs-string">"phone_number"</span>])
+    self.assertEqual(account.disabled, data[<span class="hljs-string">"disabled"</span>])
+</code></pre>
+    </details>
+    <p>::page{title="Step 4: Missing Lines 45-48"}</p>
+    <p>Run <code>nosetests</code> again to ensure lines 34 and 35 are now covered through testing and to determine the next line of code for which you should write a new test case:</p>
+    <pre><code class="hljs language-bash">nosetests
+</code></pre>
+    <p>If you completed the previous steps correctly, your test coverage report should look like this:</p>
+    <pre><code class="hljs language-asciidoc"><span class="hljs-section">Name                 Stmts   Miss  Cover   Missing
+--------------------------------------------------</span>
+models/<span class="hljs-emphasis">__init__</span>.py       6      0   100%
+<span class="hljs-section">models/account.py       40      9    78%   45-48, 52-54, 74-75
+--------------------------------------------------</span>
+<span class="hljs-section">TOTAL                   46      9    80%
+----------------------------------------------------------------------</span>
+Ran 5 tests in 0.377s
+</code></pre>
+    <p>Your test coverage increased to <strong>80%</strong>! Good job!</p>
+    <h2>Your Task</h2>
+    <p>Now examine lines <code>45-48</code> in <code>account.py</code> to find out what that code is doing.</p>
+    <pre><code class="hljs language-python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">update</span>(<span class="hljs-params">self</span>):</span>
+    <span class="hljs-string">"""Updates an account to the database"""</span>
+    logger.info(<span class="hljs-string">"Saving %s"</span>, self.name)
+    <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> self.<span class="hljs-built_in">id</span>:
+        <span class="hljs-keyword">raise</span> DataValidationError(<span class="hljs-string">"Update called with empty ID field"</span>)
+    db.session.commit()
+</code></pre>
+    <p>Notice that this code is the <code>update()</code> method. Your task is to add a new test case in <code>test_account.py</code> that executes the <code>update()</code> method on an Account.</p>
+    <h2>Solution</h2>
+    <details>
+      <summary>Click here for the solution.</summary>
+      <p>Paste this code into <code>test_account.py</code>. Be sure to indent properly.</p>
+      <pre><code class="hljs language-python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">test_update_an_account</span>(<span class="hljs-params">self</span>):</span>
+    <span class="hljs-string">""" Test Account update using known data """</span>
+    data = ACCOUNT_DATA[self.rand] <span class="hljs-comment"># get a random account</span>
+    account = Account(**data)
+    account.create()
+    self.assertIsNotNone(account.<span class="hljs-built_in">id</span>)
+    account.name = <span class="hljs-string">"Foo"</span>
+    account.update()
+    found = Account.find(account.<span class="hljs-built_in">id</span>)
+    self.assertEqual(found.name, <span class="hljs-string">"Foo"</span>)
+</code></pre>
+    </details>
+    <p>::page{title="Step 5: Missing Line 47"}</p>
+    <p>Run <code>nosetests</code> again to ensure lines 45 through 48 are now covered through testing and to determine the next line of code for which you should write a new test case:</p>
+    <pre><code class="hljs language-bash">nosetests
+</code></pre>
+    <p>This time your results should look like this:</p>
+    <pre><code class="hljs language-asciidoc"><span class="hljs-section">Name                 Stmts   Miss  Cover   Missing
+--------------------------------------------------</span>
+models/<span class="hljs-emphasis">__init__</span>.py       6      0   100%
+<span class="hljs-section">models/account.py       40      4    90%   47, 52-54
+--------------------------------------------------</span>
+<span class="hljs-section">TOTAL                   46      4    91%
+----------------------------------------------------------------------</span>
+Ran 6 tests in 0.366s
+</code></pre>
+    <p>You’ve reached <strong>91%</strong> test coverage! But what happened with line <code>47</code>? The previous test you wrote covered lines <code>45</code> through <code>48</code>, but the coverage report still lists line <code>47</code> in the Missing column. Obviously, some conditional logic was not executed in that previous test.</p>
+    <h2>Your Task</h2>
+    <p>Review lines <code>45-48</code> of <code>account.py</code> to see what that code is doing.</p>
+    <pre><code class="hljs language-python"><span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> self.<span class="hljs-built_in">id</span>:
+    <span class="hljs-keyword">raise</span> DataValidationError(<span class="hljs-string">"Update called with empty ID field"</span>)
+</code></pre>
+    <p>Notice that line <code>47</code> only executes if the <code>update()</code> method is called with an <code>id</code> that is <code>None</code>. Your task is to add a new test case in <code>test_account.py</code> that executes the <code>update()</code> method and causes this line of code to run?</p>
+    <h2>Solution</h2>
+    <details>
+      <summary>Click here for the solution.</summary>
+      <p>Paste this code into <code>test_account.py</code>. Be sure to indent properly.</p>
+      <pre><code class="hljs language-python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">test_invalid_id_on_update</span>(<span class="hljs-params">self</span>):</span>
+    <span class="hljs-string">""" Test invalid ID update """</span>
+    data = ACCOUNT_DATA[self.rand] <span class="hljs-comment"># get a random account</span>
+    account = Account(**data)
+    account.<span class="hljs-built_in">id</span> = <span class="hljs-literal">None</span>
+    self.assertRaises(DataValidationError, account.update)
+</code></pre>
+    </details>
+    <p>::page{title="Step 6: Missing Lines 53-54"}</p>
+    <p>Run <code>nosetests</code> again to ensure line 47 is now covered through testing and to determine the next line of code for which you should write a new test case:</p>
+    <pre><code class="hljs language-bash">nosetests
+</code></pre>
+    <p>This time your results should look like this:</p>
+    <pre><code class="hljs language-asciidoc"><span class="hljs-section">Name                 Stmts   Miss  Cover   Missing
+--------------------------------------------------</span>
+models/<span class="hljs-emphasis">__init__</span>.py       6      0   100%
+<span class="hljs-section">models/account.py       40      3    92%   52-54
+--------------------------------------------------</span>
+<span class="hljs-section">TOTAL                   46      3    93%
+----------------------------------------------------------------------</span>
+Ran 7 tests in 0.385s
+</code></pre>
+    <h2>Your Task</h2>
+    <p>Examine lines <code>52-54</code> of <code>account.py</code> to see what that code is doing.</p>
+    <pre><code class="hljs language-python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">delete</span>(<span class="hljs-params">self</span>):</span>
+    <span class="hljs-string">"""Removes an account from the data store"""</span>
+    logger.info(<span class="hljs-string">"Deleting %s"</span>, self.name)
+    db.session.delete(self)
+    db.session.commit()
+</code></pre>
+    <p>Notice that lines <code>52-54</code> are the <code>delete()</code> method. Your task is to add a new test case in <code>test_account.py</code> that executes the <code>delete()</code> method on an Account.</p>
+    <h2>Solution</h2>
+    <details>
+      <summary>Click here for the solution.</summary>
+      <p>Paste this code into <code>test_account.py</code>. Be sure to indent properly.</p>
+      <pre><code class="hljs language-python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">test_delete_an_account</span>(<span class="hljs-params">self</span>):</span>
+    <span class="hljs-string">""" Test Account update using known data """</span>
+    data = ACCOUNT_DATA[self.rand] <span class="hljs-comment"># get a random account</span>
+    account = Account(**data)
+    account.create()
+    self.assertEqual(<span class="hljs-built_in">len</span>(Account.<span class="hljs-built_in">all</span>()), <span class="hljs-number">1</span>)
+    account.delete()
+    self.assertEqual(<span class="hljs-built_in">len</span>(Account.<span class="hljs-built_in">all</span>()), <span class="hljs-number">0</span>)
+</code></pre>
+    </details>
+    <p>::page{title="Step 7: 100% Test Coverage"}</p>
+    <p>Run <code>nosetests</code> one last time to see what your test coverage is:</p>
+    <pre><code class="hljs language-bash">nosetests
+</code></pre>
+    <h2>Success!</h2>
+    <p>You’ve finally reached 100% code coverage with no missing lines!</p>
+    <pre><code class="hljs language-asciidoc"><span class="hljs-section">Name                 Stmts   Miss  Cover   Missing
+--------------------------------------------------</span>
+models/<span class="hljs-emphasis">__init__</span>.py       6      0   100%
+<span class="hljs-section">models/account.py       40      0   100%
+--------------------------------------------------</span>
+<span class="hljs-section">TOTAL                   46      0   100%
+----------------------------------------------------------------------</span>
+Ran 8 tests in 0.415s
+
+OK
+</code></pre>
+    <p>::page{title="Conclusion"}</p>
+    <h3>Congratulations on Completing the Test Coverage Lab</h3>
+    <p>You did it! You wrote enough test cases to execute every line of code in the <code>account</code> module. You now know that every line of code works when you test it with some known data. However, your code could still have bugs that will only reveal themselves when you send bad or unexpected data into your code. Never give up writing new test cases that cover more possibilities.</p>
+    <h2>Author(s)</h2>
+    <p>John Rofrano</p>
+    <h2>Changelog</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Version</th>
+          <th>Changed by</th>
+          <th>Change Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>2022-04-14</td>
+          <td>1.0</td>
+          <td>Rofrano</td>
+          <td>Create new Lab</td>
+        </tr>
+        <tr>
+          <td>2022-04-16</td>
+          <td>1.1</td>
+          <td>Zach Rash</td>
+          <td>Proofread and edit</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+    <h2></h2>
+    <h3 align="center">© IBM Corporation 2022. All rights reserved.</h3>
+    <h3></h3>
+    <script>window.addEventListener('load', function() {
+snFaculty.inject();
+});</script>
+    <script src="https://skills-network-assets.s3.us.cloud-object-storage.appdomain.cloud/scripts/inject.43989f87.js"></script>
+    <script src="https://unpkg.com/@highlightjs/cdn-assets@10.7.1/highlight.min.js"></script>
+    <script src="https://unpkg.com/highlightjs-badge@0.1.9/highlightjs-badge.min.js"></script>
+  </body>
+</html>

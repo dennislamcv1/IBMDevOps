@@ -1,0 +1,32 @@
+[
+    {
+        "name": "Roberta Schaefer",
+        "email": "scotttodd@example.org",
+        "phone_number": "001-630-302-1546x3624",
+        "disabled": false
+    },
+    {
+        "name": "Amber Torres",
+        "email": "reedjoann@example.org",
+        "phone_number": "121.566.9078",
+        "disabled": true
+    },
+    {
+        "name": "Becky Franco",
+        "email": "joan88@example.com",
+        "phone_number": "908-592-2015x1764",
+        "disabled": false
+    },
+    {
+        "name": "Mary Barker",
+        "email": "mreyes@example.org",
+        "phone_number": "872.976.1464x40750",
+        "disabled": true
+    },
+    {
+        "name": "Jennifer Smith",
+        "email": "stevensjennifer@example.org",
+        "phone_number": "351.317.1639x79470",
+        "disabled": true
+    }
+]
