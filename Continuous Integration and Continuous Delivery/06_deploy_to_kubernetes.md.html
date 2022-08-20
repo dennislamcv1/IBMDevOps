@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://unpkg.com/@highlightjs/cdn-assets@10.7.1/styles/default.min.css">
+  </head>
+  <body>
+    <p>::page{title="Deploying to Kubernetes / OpenShift"}</p>
+    <p><strong>Estimated time needed:</strong> 20 minutes</p>
+    <p>Welcome to the hands-on lab for <strong>Deploying to Kubernetes / OpenShift</strong>. You are now at the deploy step, which is the last step in your CD pipeline. For this step, you will use the OpenShift client to deploy your Docker image to an OpenShift cluster.</p>
+    <blockquote>
+      <p>Note: OpenShift is based on Kubernetes. Anything you can do with Kubernetes, you can do that and more with OpenShift. This lab uses the commands <code>kubectl</code> and <code>oc</code> interchangeably because <code>oc</code> is a proper superset of <code>kubectl</code>.</p>
+    </blockquote>
+    <h2>Learning Objectives</h2>
+    <p>After completing this lab, you will be able to:</p>
+    <ul>
+      <li>Determine if the openshift-client ClusterTask is available on your cluster</li>
+      <li>Describe the parameters required to use the openshift-client ClusterTask</li>
+      <li>Use the openshift-client ClusterTask in a Tekton pipeline to deploy your Docker image to Kubernetes</li>
+    </ul>
+    <p>::page{title="Set Up the Lab Environment"}</p>
+    <p>You have a little preparation to do before you can start the lab.</p>
+    <h2>Open a Terminal</h2>
+    <p>Open a terminal window by using the menu in the editor: Terminal > New Terminal.</p>
+    <p>
+      <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0215EN-SkillsNetwork/images/01_terminal.png" alt="Terminal">
+    </p>
+    <p>In the terminal, if you are not already in the <code>/home/project</code> folder, change to your project folder now.</p>
+    <pre><code class="hljs language-bash"><span class="hljs-built_in">cd</span> /home/project
+</code></pre>
+    <h2>Clone the Code Repo</h2>
+    <p>Now, get the code that you need to test. To do this, use the <code>git clone</code> command to clone the Git repository:</p>
+    <pre><code class="hljs language-bash">git <span class="hljs-built_in">clone</span> https://github.com/ibm-developer-skills-network/wtecc-CICD_PracticeCode.git
+</code></pre>
+    <p>Your output should look similar to the image below:</p>
+    <p>
+      <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0215EN-SkillsNetwork/images/01_git_clone_code.png" alt="Git Clone">
+    </p>
+    <h2>Change to the Labs Directory</h2>
+    <p>Once you have cloned the repository, change to the labs directory.</p>
+    <pre><code class="hljs language-bash"><span class="hljs-built_in">cd</span> wtecc-CICD_PracticeCode/labs/06_deploy_to_kubernetes/
+</code></pre>
+    <p>You are now ready to start the lab.</p>
+    <h3>Optional</h3>
+    <p>If working in the terminal becomes difficult because the command prompt is very long, you can shorten the prompt using the following command:</p>
+    <pre><code class="hljs language-bash"><span class="hljs-built_in">export</span> PS1=<span class="hljs-string">"[\[\033[01;32m\]\u\[\033[00m\]: \[\033[01;34m\]\W\[\033[00m\]]\$ "</span>
+</code></pre>
+    <hr>
+    <p>::page{title="Prerequisites"}</p>
+    <p>If you did not compete the previous labs, you will need to run the following commands to catch up and prepare your environment for this lab. If you have completed the previous labs, you may skip this step, although repeating it will not harm anything because Kubernetes is declarative and idempotent. It will always put the system in the same state given the same commands.</p>
+    <p>Issue the following commands from the <code>/home/project/wtecc-CICD_PracticeCode/labs/06_deploy_to_kubernetes/</code> folder to install everything from the previous labs.</p>
+    <pre><code class="hljs language-bash"><span class="hljs-built_in">cd</span> /home/project/wtecc-CICD_PracticeCode/labs/06_deploy_to_kubernetes/
+tkn hub install task git-clone
+tkn hub install task flake8
+kubectl apply -f tasks.yaml
+kubectl apply -f pvc.yaml
+</code></pre>
+    <p>Check that you have all of the previous tasks installed:</p>
+    <pre><code class="hljs language-bash">tkn task ls
+</code></pre>
+    <p>You should see:</p>
+    <pre><code class="hljs language-txt">NAME               DESCRIPTION              AGE
+git-clone          These Tasks are Git...   2 minutes ago
+flake8             This task will run ...   1 minute ago
+echo                                        46 seconds ago
+nose                                        46 seconds ago
+</code></pre>
+    <p>You are now ready to continue with this lab.</p>
+    <hr>
+    <p>::page{title="Step 1: Check for the openshift-client ClusterTask"}</p>
+    <p>Your pipeline currently has a placeholder for a <code>deploy</code> step that uses the <code>echo</code> task. Now it is time to replace it with a real deployment.</p>
+    <p>Knowing that you want to deploy to OpenShift, you search Tekton Hub for "openshift" and you see there is a task called <code>openshift-client</code> that will execute OpenShift commands on your cluster. You decide to use the <code>openshift-client</code> task in your pipeline to deploy your image.</p>
+    <p>Instead of installing it yourself, you first check the ClusterTasks in your cluster to see if it already exists. Luckily, the OpenShift environment you are using already has <code>openshift-client</code> installed as a <strong>ClusterTask</strong>. A ClusterTask is installed cluster-wide by an administrator and anyone can use it in their pipelines without having to install it themselves.</p>
+    <p>Check that the <code>openshift-client</code> task is installed as a ClusterTask using the Tekton CLI.</p>
+    <pre><code class="hljs language-bash">tkn clustertask ls
+</code></pre>
+    <p>You should see the <code>openshift-client</code> task in the list with all the other available ClusterTasks.</p>
+    <pre><code class="hljs language-gradle">NAME               <span class="hljs-keyword">DESCRIPTION</span>              AGE
+openshift-client   <span class="hljs-keyword">This</span> <span class="hljs-keyword">task</span> runs comm...   <span class="hljs-number">32</span> weeks ago
+...
+</code></pre>
+    <p>If you see it, you are ready to proceed.</p>
+    <hr>
+    <p>::page{title="Step 2: Reference the openshift-client task"}</p>
+    <p>First you need to update the <code>pipeline.yaml</code> file to use the new <code>openshift-client</code> task.</p>
+    <p>Open <code>pipeline.yaml</code> in the editor and scroll down to the <code>deploy</code> pipeline task. To open the editor, click the button below.</p>
+    <p>::openFile{path="/home/project/wtecc-CICD_PracticeCode/labs/06_deploy_to_kubernetes/pipeline.yaml"}</p>
+    <p>You must now reference the new <code>openshift-client</code> ClusterTask that you want to use in the <code>deploy</code> pipeline task.</p>
+    <p>In the previous steps, you simply changed the name of the reference to the task, but since the <code>openshift-client</code> task is installed as a <strong>ClusterTask</strong>, you need to add the statement <code>kind: ClusterTask</code> under the name so that Tekton knows to look for a <strong>ClusterTask</strong> and not a regular <strong>Task</strong>.</p>
+    <h3>Your Task</h3>
+    <p>Change the <code>taskRef</code> from <code>echo</code> to <code>openshift-client</code> and add a line below it with <code>kind: ClusterTask</code> to indicate that this is a ClusterTask:</p>
+    <h3>Hint</h3>
+    <details>
+      <summary>Click here for a hint.</summary>
+      <blockquote>
+        <p>You want to change this name and add <code>kind:</code> below it.</p>
+      </blockquote>
+      <pre><code class="hljs language-yaml">      <span class="hljs-attr">taskRef:</span>
+        <span class="hljs-attr">name:</span> <span class="hljs-string">echo</span>
+</code></pre>
+    </details>
+    <h3>Solution</h3>
+    <details>
+      <summary>Click here for the answer.</summary>
+      <pre><code class="hljs language-yaml">      <span class="hljs-attr">taskRef:</span>
+        <span class="hljs-attr">name:</span> <span class="hljs-string">openshift-client</span>
+		<span class="hljs-attr">kind:</span> <span class="hljs-string">ClusterTask</span>
+</code></pre>
+    </details>
+    <p>::page{title="Step 3: Update the Task Parameters"}</p>
+    <p>The documentation for the <code>openshift-client</code> task details that there is a parameter named <code>SCRIPT</code>that you can use to run <code>oc</code> commands. Any command you can use with <code>kubectl</code> can also be used with <code>oc</code>. This is what you will use to deploy your image.</p>
+    <p>The command to deploy an image on OpenShift is:</p>
+    <pre><code class="hljs language-sqf">oc create deployment {<span class="hljs-built_in">name</span>} --<span class="hljs-built_in">image</span>={<span class="hljs-built_in">image</span>-<span class="hljs-built_in">name</span>}
+</code></pre>
+    <p>Since you might want to reuse this pipeline to deploy different applications, you should make the deployment name a parameter that can be passed in when the pipeline runs. You already have the image name as a parameter from the build task that you can use.</p>
+    <h3>Your Task</h3>
+    <p>Change the <code>message</code> parameter to <code>SCRIPT</code> and specify the value of <code>"oc create deploy $(params.app-name) --image=$(params.build-image)"</code> in quotes.</p>
+    <h3>Hint</h3>
+    <details>
+      <summary>Click here for a hint.</summary>
+      <blockquote>
+        <p>You want to change the name and value of the message parameter.</p>
+      </blockquote>
+      <pre><code class="hljs language-yaml">      <span class="hljs-attr">params:</span>
+      <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">message</span>
+        <span class="hljs-attr">value:</span> <span class="hljs-string">"Deploying $(params.branch) branch of $(params.repo-url) ..."</span>
+</code></pre>
+    </details>
+    <h3>Solution</h3>
+    <details>
+      <summary>Click here for the answer.</summary>
+      <pre><code class="hljs language-yaml">      <span class="hljs-attr">params:</span>
+      <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">SCRIPT</span>
+        <span class="hljs-attr">value:</span> <span class="hljs-string">"oc create deploy $(params.app-name) --image=$(params.build-image)"</span>
+</code></pre>
+    </details>
+    <hr>
+    <p>::page{title="Step 4: Update the Pipeline Parameters"}</p>
+    <p>Now that you are passing in the <code>app-name</code> parameter to the <code>deploy</code> task, you need to go back to the top of the <code>pipeline.yaml</code> file and add the parameter there so that it can be passed into the pipeline when it is run.</p>
+    <h3>Your Task</h3>
+    <p>Add a parameter named <code>app-name</code> to the existing list of parameters at the top of the pipeline under <code>spec.params</code>.</p>
+    <h3>Hint</h3>
+    <details>
+      <summary>Click here for a hint.</summary>
+      <blockquote>
+        <p>You want to add <code>app-name</code> to this parameter list.</p>
+      </blockquote>
+      <pre><code class="hljs language-yaml"><span class="hljs-attr">spec:</span>
+  <span class="hljs-attr">params:</span>
+    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">build-image</span>
+    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">repo-url</span>
+    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">branch</span>
+</code></pre>
+    </details>
+    <h3>Solution</h3>
+    <details>
+      <summary>Click here for the answer.</summary>
+      <pre><code class="hljs language-yaml"><span class="hljs-attr">spec:</span>
+  <span class="hljs-attr">params:</span>
+    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">app-name</span>
+</code></pre>
+    </details>
+    <hr>
+    <p>::page{title="Step 5: Check Your work"}</p>
+    <h2>Code Check</h2>
+    <p>If you changed everything correctly, the full <code>deploy</code> task in the pipeline should look like this:</p>
+    <pre><code class="hljs language-yaml">    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">deploy</span>
+      <span class="hljs-attr">taskRef:</span>
+        <span class="hljs-attr">name:</span> <span class="hljs-string">openshift-client</span>
+        <span class="hljs-attr">kind:</span> <span class="hljs-string">ClusterTask</span>
+      <span class="hljs-attr">params:</span>
+      <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">SCRIPT</span>
+        <span class="hljs-attr">value:</span> <span class="hljs-string">"oc create deploy $(params.app-name) --image=$(params.build-image)"</span>
+      <span class="hljs-attr">runAfter:</span>
+        <span class="hljs-bullet">-</span> <span class="hljs-string">build</span>
+</code></pre>
+    <p>Also, the full parameter list for your pipeline should look like this:</p>
+    <pre><code class="hljs language-yaml"><span class="hljs-attr">spec:</span>
+  <span class="hljs-attr">params:</span>
+    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">app-name</span>
+    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">build-image</span>
+    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">repo-url</span>
+    <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">branch</span>
+      <span class="hljs-attr">default:</span> <span class="hljs-string">master</span>
+</code></pre>
+    <p>Save your changes before you continue.</p>
+    <h2>Terminal Folder Check</h2>
+    <p>Before you proceed with running commands in the terminal, make sure that you are in the <code>/home/project/wtecc-CICD_PracticeCode/labs/06_deploy_to_kubernetes/</code> folder.</p>
+    <p>Go to the terminal and use the <code>pwd</code> command just to be sure.</p>
+    <pre><code class="hljs language-bash"><span class="hljs-built_in">pwd</span>
+</code></pre>
+    <p>You should see: <code>/home/project/wtecc-CICD_PracticeCode/labs/06_deploy_to_kubernetes/</code>. If you do not, you should <code>cd</code> into that folder now:</p>
+    <pre><code class="hljs language-bash"><span class="hljs-built_in">cd</span> /home/project/wtecc-CICD_PracticeCode/labs/06_deploy_to_kubernetes/
+</code></pre>
+    <p>You are now ready to run the terminal commands in the next step.</p>
+    <hr>
+    <p>::page{title="Step 6: Apply Changes and Run the Pipeline"}</p>
+    <h2>Apply the Pipeline</h2>
+    <p>Apply the same changes you just made to <code>pipeline.yaml</code> to your cluster:</p>
+    <pre><code class="hljs language-bash">kubectl apply -f pipeline.yaml
+</code></pre>
+    <h2>Start the Pipeline</h2>
+    <p>When you start the pipeline, you now need to pass in the <code>app-name</code> parameter, which is the name of the application to deploy.</p>
+    <p>Your application is called <code>hitcounter</code> so this is the name that you will pass in, along with all the other parameters from the previous steps.</p>
+    <p>Now, start the pipeline to see your new deploy task run. Use the Tekton CLI <code>pipeline start</code> command to run the pipeline, passing in the parameters <code>repo-url</code>, <code>branch</code>, <code>app-name</code>, and <code>build-image</code> using the <code>-p</code> option. Specify the workspace <code>pipeline-workspace</code> and persistent volume claim <code>pipelinerun-pvc</code> using the <code>-w</code> option:</p>
+    <pre><code class="hljs language-bash">tkn pipeline start cd-pipeline \
+    -p repo-url=<span class="hljs-string">"https://github.com/ibm-developer-skills-network/wtecc-CICD_PracticeCode.git"</span> \
+    -p branch=main \
+    -p app-name=hitcounter \
+    -p build-image=image-registry.openshift-image-registry.svc:5000/<span class="hljs-variable">$SN_ICR_NAMESPACE</span>/tekton-lab:latest \
+    -w name=pipeline-workspace,claimName=pipelinerun-pvc \
+    --showlog
+</code></pre>
+    <p>You should see <code>Waiting for logs to be available...</code> while the pipeline runs. The logs will be shown on the screen. Wait until the pipeline run completes successfully.</p>
+    <h2>Check the Run Status</h2>
+    <p>You can see the pipeline run status by listing the pipeline runs with:</p>
+    <pre><code class="hljs language-bash">tkn pipelinerun ls
+</code></pre>
+    <p>You should see:</p>
+    <pre><code class="hljs language-txt">NAME                    STARTED         DURATION     STATUS
+cd-pipeline-run-fbxbx   1 minute ago    59 seconds   Succeeded
+</code></pre>
+    <p>You can check the logs of the last run with:</p>
+    <pre><code class="hljs language-bash">tkn pipelinerun logs --last
+</code></pre>
+    <p>If it is successful, the last line you should see in the logs is:</p>
+    <pre><code class="hljs language-json">[deploy : oc] deployment.apps/hitcounter created
+</code></pre>
+    <p>If it says anything but <em>created</em> something has gone wrong.</p>
+    <hr>
+    <p>::page{title="Step 7: Check the Deployment"}</p>
+    <p>Now, check to see if the deployment is running. Use the <code>kubectl</code> command to check that your deployment is in a running state.</p>
+    <pre><code class="hljs language-bash">kubectl get all -l app=hitcounter
+</code></pre>
+    <p>You should see:</p>
+    <pre><code class="hljs language-apache"><span class="hljs-attribute">NAME</span>                              READY   STATUS    RESTARTS   AGE
+<span class="hljs-attribute">pod</span>/hitcounter-<span class="hljs-number">7</span>c<span class="hljs-number">9</span>f<span class="hljs-number">95784</span>d-rk<span class="hljs-number">4</span>tf   <span class="hljs-number">1</span>/<span class="hljs-number">1</span>     Running   <span class="hljs-number">0</span>          <span class="hljs-number">2</span>m<span class="hljs-number">46</span>s
+
+<span class="hljs-attribute">NAME</span>                         READY   UP-TO-DATE   AVAILABLE   AGE
+<span class="hljs-attribute">deployment</span>.apps/hitcounter   <span class="hljs-number">1</span>/<span class="hljs-number">1</span>     <span class="hljs-number">1</span>            <span class="hljs-number">1</span>           <span class="hljs-number">2</span>m<span class="hljs-number">46</span>s
+
+<span class="hljs-attribute">NAME</span>                                    DESIRED   CURRENT   READY   AGE
+<span class="hljs-attribute">replicaset</span>.apps/hitcounter-<span class="hljs-number">7</span>c<span class="hljs-number">9</span>f<span class="hljs-number">95784</span>d   <span class="hljs-number">1</span>         <span class="hljs-number">1</span>         <span class="hljs-number">1</span>       <span class="hljs-number">2</span>m<span class="hljs-number">46</span>s
+</code></pre>
+    <p>If your <strong>pod</strong> is running, your application has been successfully deployed.</p>
+    <hr>
+    <p>::page{title="Conclusion"}</p>
+    <p>Congratulations! You have just added the ability to deploy a Docker image to an OpenShift / Kubernetes cluster.</p>
+    <p>In this lab, you learned how to use the <code>openshift-client</code> ClusterTask from the Tekton catalog. You learned how to modify your pipeline to reference the task as a ClusterTask and configure its parameters. You also learned how to pass additional parameters to a pipeline to specify the application name, and how to run the pipeline to deploy an image to OpenShift.</p>
+    <h2>Next Steps</h2>
+    <p>Try to set up a pipeline to deploy an image with Tekton from one of your own code repositories.</p>
+    <p>If you are interested in continuing to learn about Kubernetes and containers, you should get your own <a href="https://www.ibm.com/cloud/container-service/?utm_medium=Exinfluencer&#x26;utm_source=Exinfluencer&#x26;utm_content=000026UJ&#x26;utm_term=10006555&#x26;utm_id=NA-SkillsNetwork-Channel-SkillsNetworkCoursesIBMCD0215ENSkillsNetwork35576036-2022-01-01" target="_blank" rel="external">free Kubernetes cluster</a> and your own free <a href="https://www.ibm.com/cloud/container-registry?utm_medium=Exinfluencer&#x26;utm_source=Exinfluencer&#x26;utm_content=000026UJ&#x26;utm_term=10006555&#x26;utm_id=NA-SkillsNetwork-Channel-SkillsNetworkCoursesIBMCD0215ENSkillsNetwork35576036-2022-01-01" target="_blank" rel="external">IBM Container Registry</a>.</p>
+    <h2>Author(s)</h2>
+    <p><a href="https://www.coursera.org/instructor/johnrofrano?utm_medium=Exinfluencer&#x26;utm_source=Exinfluencer&#x26;utm_content=000026UJ&#x26;utm_term=10006555&#x26;utm_id=NA-SkillsNetwork-Channel-SkillsNetworkCoursesIBMCD0215ENSkillsNetwork35576036-2022-01-01" target="_blank" rel="external">John J. Rofrano</a></p>
+    <h3>Other Contributor(s)</h3>
+    <h2>Change Log</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Version</th>
+          <th>Changed by</th>
+          <th>Change Description</th>
+          <th></th>
+          <th></th>
+          <th></th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>2022-07-22</td>
+          <td>0.1</td>
+          <td>John Rofrano</td>
+          <td>Initial version created</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>2022-07-22</td>
+          <td>0.2</td>
+          <td>Steve Ryan</td>
+          <td>ID review</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>2022-07-22</td>
+          <td>0.3</td>
+          <td>Beth Larsen</td>
+          <td>QA review</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+    <script>window.addEventListener('load', function() {
+snFaculty.inject();
+});</script>
+    <script src="https://skills-network-assets.s3.us.cloud-object-storage.appdomain.cloud/scripts/inject.43989f87.js"></script>
+    <script src="https://unpkg.com/@highlightjs/cdn-assets@10.7.1/highlight.min.js"></script>
+    <script src="https://unpkg.com/highlightjs-badge@0.1.9/highlightjs-badge.min.js"></script>
+  </body>
+</html>

@@ -1,0 +1,710 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://unpkg.com/@highlightjs/cdn-assets@10.7.1/styles/default.min.css">
+  </head>
+  <body>
+    <p>::page{title="Using GitHub Actions"}</p>
+    <p><strong>Estimated time needed:</strong> 60 minutes</p>
+    <p>Welcome to the hands-on lab for <strong>Using GitHub Actions</strong>. In this lab, you will build a workflow in a GitHub repository using GitHub Actions. You will create an empty workflow file in Step 1 and fill it out in subsequent steps to add dependencies and perform unit tests. You will also add events to the workflow so that the workflow is triggered whenever code is pushed to the main branch or a pull request is created on the main branch.</p>
+    <h2>Learning Objectives</h2>
+    <p>After completing this lab, you will be able to:</p>
+    <ul>
+      <li>Create a GitHub workflow to run your CI pipeline</li>
+      <li>Add events to trigger the workflow</li>
+      <li>Add a job to the workflow</li>
+      <li>Add steps to a job</li>
+      <li>Run inline commands in the steps</li>
+      <li>Review the logs for a workflow run</li>
+    </ul>
+    <h2>Prerequisites</h2>
+    <p>You will need the following to complete the exercises in this lab:</p>
+    <ul>
+      <li>A basic understanding of YAML</li>
+      <li>A GitHub account</li>
+      <li>An intermediate-level knowledge of CLIs</li>
+    </ul>
+    <hr>
+    <p>::page{title="Generate GitHub Personal Access Token"}</p>
+    <p>You have a little preparation to do before you can start the lab.</p>
+    <h2>Generate a Personal Access Token</h2>
+    <p>You will fork and clone a repo in this lab using the <code>gh</code> CLI tool. You will also push changes to your cloned repo at the end of this lab. This requires you to authenticate with GitHub using a <code>personal access token</code>. Follow the steps here to generate this token and save it for later use:</p>
+    <ol>
+      <li>Navigate to <a href="https://github.com/settings/tokens" title="GitHub Settings" target="_blank" rel="external">GitHub Settings</a> of your account.</li>
+      <li>Click <strong>Generate new toke</strong>n to create a personal access token.</li>
+    </ol>
+    <p>
+      <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0215EN-SkillsNetwork/images/actions_token_generate.png" alt="">
+      3. Give your token a descriptive name and optionally change the expiration date.
+      
+      <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0215EN-SkillsNetwork/images/actions_token_name_expiry.png" alt="">
+      4. Select the minimum required scopes needed for this lab: repo, read:org, and workflow.
+      
+      <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0215EN-SkillsNetwork/images/actions_token_permissions.png" alt="">
+      5. Click <strong>Generate token</strong>.
+      
+      <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0215EN-SkillsNetwork/images/actions_token_generate_finish.png" alt="">
+      6. Make sure you copy the token and paste it somewhere safe as you will need it in the next step. <strong>WARNING: You will not be able to see it again.</strong>
+      <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0215EN-SkillsNetwork/images/actions_token_generate_warning.png" alt="">
+      <code>Warning: Keep your tokens safe and protect them like passwords.</code>
+    </p>
+    <p>If you lose this token at any time, repeat the above steps to regenerate the token.</p>
+    <p>::page{title="Fork and Clone the Repository"}</p>
+    <h2>Open a Terminal</h2>
+    <p>Open a terminal window by using the menu in the editor: Terminal > New Terminal.</p>
+    <p>
+      <img src="http://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0241EN-SkillsNetwork/labs/module2/images/01_terminal.png" alt="">
+    </p>
+    <p>In the terminal, if you are not already in the /home/project folder, change to your project folder now.</p>
+    <pre><code class="hljs language-shell">cd /home/project
+</code></pre>
+    <h2>Authenticate with GitHub</h2>
+    <p>Run the following command to authenticate with GitHub in the terminal. You will need the <code>GitHub Personal Token</code> you created in the previous step.</p>
+    <pre><code class="hljs language-shell">gh auth login
+</code></pre>
+    <p>You will be taken through a guided experience as shown here:</p>
+    <blockquote>
+      <p>
+        What account do you want to log into? GitHub.com
+        What is your preferred protocol for Git operations? HTTPS
+        Authenticate Git with your GitHub credentials.
+        How would you like to authenticate GitHub CLI? Paste an authentication token.
+        Paste your authentication token: ****************************************
+        You will be logged into GitHub as your account user.
+      </p>
+    </blockquote>
+    <p>After you have authenticated successfully, you will need to fork and clone <a href="https://github.com/ibm-developer-skills-network/wtecc-CICD_PracticeCode" title="GitHub" target="_blank" rel="external">this GitHub</a> repo in the terminal. You will then create a workflow to trigger GitHub Actions in your forked version of the repository.</p>
+    <h2>Fork and Clone the Reference Repo</h2>
+    <pre><code class="hljs language-shell">gh repo fork ibm-developer-skills-network/wtecc-CICD_PracticeCode --clone=true
+</code></pre>
+    <p>
+      Your output should look similar to the image below:
+      
+      <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0215EN-SkillsNetwork/images/actions_gh_fork_repo.png" alt="">
+    </p>
+    <blockquote>
+      <h6><strong>Important:</strong> Pull Request</h6>
+    </blockquote>
+    <p>When making a pull request, make sure that your request is merging with your fork because the pull request of a fork will default to come back to <a href="https://github.com/ibm-developer-skills-network/wtecc-CICD_PracticeCode" title="this" target="_blank" rel="external">this</a> repo, not your fork.</p>
+    <h2>Change to the Lab Folder</h2>
+    <p>Once you have cloned the repository, change to the directory named <code>wtecc-CICD_PracticeCode</code></p>
+    <pre><code class="hljs language-shell">cd wtecc-CICD_PracticeCode
+</code></pre>
+    <p>List the contents of this directory to see the artifacts for this lab.</p>
+    <pre><code class="hljs language-shell">ls -l
+</code></pre>
+    <p>The directory should look like the listing below:</p>
+    <p>
+      <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0215EN-SkillsNetwork/images/actions_directory_ls.png" alt="">
+    </p>
+    <p>
+      You can also view the files cloned in the file explorer.
+      
+      <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0215EN-SkillsNetwork/images/actions_directory_ls.png" alt="">
+    </p>
+    <p>You are now ready to start the lab.</p>
+    <h3>Optional</h3>
+    <p>If working in the terminal becomes difficult because the command prompt is very long, you can shorten the prompt using the following command:</p>
+    <pre><code class="hljs language-bash"><span class="hljs-built_in">export</span> PS1=<span class="hljs-string">"[\[\033[01;32m\]\u\[\033[00m\]: \[\033[01;34m\]\W\[\033[00m\]]\$ "</span>
+</code></pre>
+    <hr>
+    <p>::page{title="Step 1: Create a Workflow"}</p>
+    <p>To get started, you need to create a workflow yaml file. The first line in this file will define the name of the workflow that shows up in GitHub Actions page of your repository.</p>
+    <h2>Your Task</h2>
+    <ol>
+      <li>
+        <p>Open the terminal and ensure you are in the <code>wtecc-CICD_PracticeCode</code> directory.</p>
+        <details>
+          <summary>Click here for a hint.</summary>
+          <pre><code class="hljs language-shell">cd /home/project/wtecc-CICD_PracticeCode
+</code></pre>
+        </details>
+      </li>
+      <li>
+        <p>Create the directory structure <code>.github/workflows</code> and create a file called <code>workflow.yml</code>.</p>
+        <details>
+          <summary>Click here for a hint.</summary>
+          <pre><code class="hljs language-shell">mkdir -p .github/workflows
+touch .github/workflows/workflow.yml
+</code></pre>
+        </details>
+      </li>
+      <li>
+        <p>Every workflow starts with a name. The name will be displayed on the Actions page and on any badges. Give your workflow the name <code>CI workflow</code> by adding a <code>name:</code> tag as the first line in the file.</p>
+        <details>
+          <summary>Click here for a hint.</summary>
+          <pre><code class="hljs language-yaml"><span class="hljs-attr">name:</span> {<span class="hljs-string">insert</span> <span class="hljs-string">name</span> <span class="hljs-string">here</span>}
+</code></pre>
+        </details>
+      </li>
+    </ol>
+    <p>::openFile{path="/home/project/wtecc-CICD_PracticeCode/.github/workflows/workflow.yml"}</p>
+    <p>Double-check that your work matches the solution below.</p>
+    <h3>Solution</h3>
+    <details>
+      <summary>Click here for the answer.</summary>Replace the workflow.yml file with the code snippet below. You can also copy relevant parts of the code. Be sure to indent properly:
+      <pre><code class="hljs language-yaml"><span class="hljs-attr">name:</span> <span class="hljs-string">CI</span> <span class="hljs-string">workflow</span>
+</code></pre>
+    </details>
+    <hr>
+    <p>::page{title="Step 2: Add Event Triggers"}</p>
+    <p>Event triggers define which events can cause the workflow to run. You will use the <code>on:</code> tag to add the following events:</p>
+    <ul>
+      <li>Run the workflow on every push to the main branch</li>
+      <li>Run the workflow whenever a pull request is created to the main branch.</li>
+    </ul>
+    <h2>Your Task</h2>
+    <ol>
+      <li>
+        <p>Add the <code>on:</code> keyword to the workflow at the same level of indentation as the <code>name:</code>.</p>
+        <details>
+          <summary>Click here for a hint.</summary>
+          <pre><code class="hljs language-yaml"><span class="hljs-attr">on:</span>
+</code></pre>
+        </details>
+      </li>
+      <li>
+        <p>Add <code>push:</code> event as the first event that can trigger the workflow. This is added as the child element of <code>on:</code> so it must be indented under it.</p>
+        <details>
+          <summary>Click here for a hint.</summary>
+          <pre><code class="hljs language-yaml"><span class="hljs-attr">on:</span>
+  {<span class="hljs-string">insert</span> <span class="hljs-string">first</span> <span class="hljs-string">event</span> <span class="hljs-string">name</span> <span class="hljs-string">here</span>}<span class="hljs-string">:</span>
+</code></pre>
+        </details>
+      </li>
+      <li>
+        <p>Add the <code>"main"</code> branch to the push event. You want the workflow to start every time somebody pushes to the main branch. This also includes merge events. You do this by using the <code>branches:</code> keyword followed by a list of branches either as <code>[]</code> or <code>-</code></p>
+        <details>
+          <summary>Click here for a hint.</summary>
+          <pre><code class="hljs language-yaml"><span class="hljs-attr">on:</span>
+  <span class="hljs-attr">push:</span>
+    <span class="hljs-attr">branches:</span> [ {<span class="hljs-string">insert</span> <span class="hljs-string">branch</span> <span class="hljs-string">name</span> <span class="hljs-string">here</span>} ]
+</code></pre>
+        </details>
+      </li>
+      <li>
+        <p>Add a <code>pull_request:</code> event similar to the push event you just finished. It should be triggered whenever the user makes a pull request on the main branch.</p>
+        <details>
+          <summary>Click here for a hint.</summary>
+          <pre><code class="hljs language-yaml"><span class="hljs-attr">on:</span>
+  <span class="hljs-attr">push:</span>
+    <span class="hljs-attr">branches:</span> [ <span class="hljs-string">"main"</span> ]
+  {<span class="hljs-string">insert</span> <span class="hljs-string">second</span> <span class="hljs-string">event</span> <span class="hljs-string">name</span> <span class="hljs-string">here</span>}<span class="hljs-string">:</span>
+    <span class="hljs-attr">branches:</span> [ {<span class="hljs-string">insert</span> <span class="hljs-string">branch</span> <span class="hljs-string">name</span> <span class="hljs-string">here</span>} ]
+</code></pre>
+        </details>
+      </li>
+    </ol>
+    <p>Double-check that your work matches the solution below.</p>
+    <h3>Solution</h3>
+    <details>
+      <summary>Click here for the answer.</summary>Replace the workflow.yml file with the code snippet below. You can also copy relevant parts of the code. Be sure to indent properly:
+      <pre><code class="hljs language-yaml"><span class="hljs-attr">name:</span> <span class="hljs-string">CI</span> <span class="hljs-string">workflow</span>
+
+<span class="hljs-attr">on:</span>
+  <span class="hljs-attr">push:</span>
+    <span class="hljs-attr">branches:</span> [ <span class="hljs-string">"main"</span> ]
+  <span class="hljs-attr">pull_request:</span>
+    <span class="hljs-attr">branches:</span> [ <span class="hljs-string">"main"</span> ]
+</code></pre>
+    </details>
+    <hr>
+    <p>::page{title="Step 3: Add a Job"}</p>
+    <p>You will now add a job called <code>build</code> to the workflow file. This job will run on the <code>ubuntu-latest</code> runner. Remember, a job is a collection of steps that are run on the events you added in the previous step.</p>
+    <h2>Your Task</h2>
+    <ol>
+      <li>
+        <p>First you need a job. Add the <code>jobs:</code> section to the workflow at the same level of indentation as the <code>name</code> (i.e., no indent).</p>
+        <details>
+          <summary>Click here for a hint.</summary>
+          <pre><code class="hljs language-yaml"><span class="hljs-attr">jobs:</span>
+</code></pre>
+        </details>
+      </li>
+      <li>
+        <p>Next, you need to name the job. Name your job <code>build:</code> by adding a new line under the <code>jobs:</code> section.</p>
+        <details>
+          <summary>Click here for a hint.</summary>
+          <pre><code class="hljs language-yaml"><span class="hljs-attr">jobs:</span>
+  {<span class="hljs-string">insert</span> <span class="hljs-string">job</span> <span class="hljs-string">name</span> <span class="hljs-string">here</span>}<span class="hljs-string">:</span>
+</code></pre>
+        </details>
+      </li>
+      <li>
+        <p>Finally, you need a runner. Tell GitHub Actions to use the <code>ubuntu-latest</code> runner for this job. You can do this by using the <code>runs-on:</code> keyword.</p>
+        <details>
+          <summary>Click here for a hint.</summary>
+          <pre><code class="hljs language-yaml"><span class="hljs-attr">jobs:</span>
+  <span class="hljs-attr">build:</span>
+    <span class="hljs-attr">runs-on:</span> {<span class="hljs-string">insert</span> <span class="hljs-string">runner</span> <span class="hljs-string">name</span> <span class="hljs-string">here</span>}
+</code></pre>
+        </details>
+      </li>
+    </ol>
+    <p>Double-check that your work matches the solution below.</p>
+    <h3>Solution</h3>
+    <details>
+      <summary>Click here for the answer.</summary>Replace the workflow.yml file with the code snippet below. You can also copy relevant parts of the code. Be sure to indent properly:
+      <pre><code class="hljs language-yaml"><span class="hljs-attr">name:</span> <span class="hljs-string">CI</span> <span class="hljs-string">workflow</span>
+
+<span class="hljs-attr">on:</span>
+  <span class="hljs-attr">push:</span>
+    <span class="hljs-attr">branches:</span> [ <span class="hljs-string">"main"</span> ]
+  <span class="hljs-attr">pull_request:</span>
+    <span class="hljs-attr">branches:</span> [ <span class="hljs-string">"main"</span> ]
+
+<span class="hljs-attr">jobs:</span>
+  <span class="hljs-attr">build:</span>
+    <span class="hljs-attr">runs-on:</span> <span class="hljs-string">ubuntu-latest</span>
+</code></pre>
+    </details>
+    <hr>
+    <p>::page{title="Step 4: Target Python 3.9"}</p>
+    <p>It is important to consistently use the same version of dependencies and operating system for all phases of development including the CI pipeline. This project was developed on Python 3.9, so you need to ensure that the CI pipeline also runs on the same version of Python. You will accomplish this by running your workflow in a container inside the GitHub action.</p>
+    <h2>Your Task</h2>
+    <ol>
+      <li>Add a <code>container:</code> section under the <code>runs-on:</code> section of the build job, and tell GitHub Actions to use <code>python:3.9-slim</code> as the image.</li>
+    </ol>
+    <h3>Hint</h3>
+    <details>
+      <summary>Click here for a hint.</summary>
+      <pre><code class="hljs language-yaml"><span class="hljs-attr">jobs:</span>
+  <span class="hljs-attr">build:</span>
+    <span class="hljs-attr">runs-on:</span> <span class="hljs-string">ubuntu-latest</span>
+    <span class="hljs-attr">container:</span> {<span class="hljs-string">insert</span> <span class="hljs-string">container</span> <span class="hljs-string">name</span> <span class="hljs-string">here</span>}
+</code></pre>
+    </details>
+    <p>Double-check that your work matches the solution below.</p>
+    <h3>Solution</h3>
+    <details>
+      <summary>Click here for the answer.</summary>Replace the workflow.yml file with the code snippet below. You can also copy relevant parts of the code. Be sure to indent properly:
+      <pre><code class="hljs language-yaml"><span class="hljs-attr">name:</span> <span class="hljs-string">CI</span> <span class="hljs-string">workflow</span>
+
+<span class="hljs-attr">on:</span>
+  <span class="hljs-attr">push:</span>
+    <span class="hljs-attr">branches:</span> [ <span class="hljs-string">"main"</span> ]
+  <span class="hljs-attr">pull_request:</span>
+    <span class="hljs-attr">branches:</span> [ <span class="hljs-string">"main"</span> ]
+
+<span class="hljs-attr">jobs:</span>
+  <span class="hljs-attr">build:</span>
+    <span class="hljs-attr">runs-on:</span> <span class="hljs-string">ubuntu-latest</span>
+    <span class="hljs-attr">container:</span> <span class="hljs-string">python:3.9-slim</span>
+</code></pre>
+    </details>
+    <hr>
+    <p>::page{title="Step 5: Add the checkout Step"}</p>
+    <p>Now you will add your first step to the job. The first task is to check out the code from the repository. You will use the predefined <code>actions/checkout@v3</code> action to do this. You can learn more about this action on the <a href="https://github.com/actions/checkout" title="GitHub page" target="_blank" rel="external">GitHub page</a>.</p>
+    <h2>Your Task</h2>
+    <ol>
+      <li>
+        <p>Add the <code>steps:</code> section at the end of the <code>build</code> job in the workflow file.</p>
+        <details>
+          <summary>Click here for a hint.</summary>
+          <pre><code class="hljs language-yaml"><span class="hljs-attr">steps:</span>
+</code></pre>
+        </details>
+      </li>
+      <li>
+        <p>Add the checkout step as the first step. Give it the <code>name:</code> Checkout and call the action <code>actions/checkout@v3</code> by using the <code>uses:</code> keyword.</p>
+        <details>
+          <summary>Click here for a hint.</summary>
+          <pre><code class="hljs language-yaml"><span class="hljs-attr">steps:</span>
+  <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> {<span class="hljs-string">insert</span> <span class="hljs-string">step</span> <span class="hljs-string">name</span> <span class="hljs-string">here</span>}
+    <span class="hljs-attr">uses:</span> {<span class="hljs-string">insert</span> <span class="hljs-string">action</span> <span class="hljs-string">name</span> <span class="hljs-string">here</span>}
+</code></pre>
+        </details>
+      </li>
+    </ol>
+    <p>Double-check that your work matches the solution below.</p>
+    <h3>Solution</h3>
+    <details>
+      <summary>Click here for the answer.</summary>Replace the workflow.yml file with the code snippet below. You can also copy relevant parts of the code. Be sure to indent properly:
+      <pre><code class="hljs language-yaml"><span class="hljs-attr">name:</span> <span class="hljs-string">CI</span> <span class="hljs-string">workflow</span>
+
+<span class="hljs-attr">on:</span>
+  <span class="hljs-attr">push:</span>
+    <span class="hljs-attr">branches:</span> [ <span class="hljs-string">"main"</span> ]
+  <span class="hljs-attr">pull_request:</span>
+    <span class="hljs-attr">branches:</span> [ <span class="hljs-string">"main"</span> ]
+
+<span class="hljs-attr">jobs:</span>
+  <span class="hljs-attr">build:</span>
+    <span class="hljs-attr">runs-on:</span> <span class="hljs-string">ubuntu-latest</span>
+    <span class="hljs-attr">container:</span> <span class="hljs-string">python:3.9-slim</span>
+    <span class="hljs-attr">steps:</span>
+	  <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Checkout</span>
+        <span class="hljs-attr">uses:</span> <span class="hljs-string">actions/checkout@v3</span>
+</code></pre>
+    </details>
+    <hr>
+    <p>::page{title="Step 6: Install Dependencies"}</p>
+    <p>Now that you have checked out the code, the next step is to install the dependencies. This application uses <code>pip</code>, the Python package manager, to install all the dependencies from the PyPI package. The pip command refers to the <code>requirements.txt</code> file for the list of dependencies. The <code>python:3.9-slim</code> container you are using already has the pip package manager installed.</p>
+    <p>The commands that you will use in this step are:</p>
+    <pre><code class="hljs language-basic">python -m pip install --upgrade pip
+pip install -r requi<span class="hljs-comment">rements.txt</span>
+</code></pre>
+    <p>Now, look at each line to understand what it is doing:</p>
+    <pre><code class="hljs language-sql_more">python -m pip <span class="hljs-keyword">install</span> <span class="hljs-comment">--upgrade pip</span>
+</code></pre>
+    <p>This command installs pip if it is not found on the GitHub runner or updates it to the latest version if it is already installed. It's always a good practice to make sure that you are using the latest version of pip to minimize installation problems.</p>
+    <pre><code class="hljs language-basic">pip install -r requi<span class="hljs-comment">rements.txt</span>
+</code></pre>
+    <p>This command instructs <code>pip</code> to installs any dependencies listed in the <code>requirements.txt</code> file. It is a best practice to place the names of dependent packages here.</p>
+    <h2>Your Task</h2>
+    <ol>
+      <li>
+        <p>Add a new named step after the checkout step. Call this step <code>Install dependencies</code>.</p>
+        <details>
+          <summary>Click here for a hint.</summary>
+          <pre><code class="hljs language-yaml"><span class="hljs-attr">steps:</span>
+  <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> {<span class="hljs-string">insert</span> <span class="hljs-string">step</span> <span class="hljs-string">name</span> <span class="hljs-string">here</span>}
+</code></pre>
+        </details>
+      </li>
+      <li>
+        <p>Next, you want to run the commands to update the package manager <code>pip</code> and then install the dependencies. Since there are two commands, you can run these inline using the <code>run:</code> keyword with the pipe <code>|</code> operator.</p>
+        <details>
+          <summary>Click here for a hint.</summary>
+          <pre><code class="hljs language-yaml"><span class="hljs-attr">steps:</span>
+  <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Install</span> <span class="hljs-string">dependencies</span>
+    <span class="hljs-attr">run:</span> <span class="hljs-string">|
+      {insert code here}
+</span></code></pre>
+        </details>
+      </li>
+    </ol>
+    <p>Double-check that your work matches the solution below.</p>
+    <h3>Solution</h3>
+    <details>
+      <summary>Click here for the answer.</summary>Replace the workflow.yml file with the code snippet below. You can also copy relevant parts of the code. Be sure to indent properly:
+      <pre><code class="hljs language-yaml"><span class="hljs-attr">name:</span> <span class="hljs-string">CI</span> <span class="hljs-string">workflow</span>
+
+<span class="hljs-attr">on:</span>
+  <span class="hljs-attr">push:</span>
+    <span class="hljs-attr">branches:</span> [ <span class="hljs-string">"main"</span> ]
+  <span class="hljs-attr">pull_request:</span>
+    <span class="hljs-attr">branches:</span> [ <span class="hljs-string">"main"</span> ]
+
+<span class="hljs-attr">jobs:</span>
+  <span class="hljs-attr">build:</span>
+    <span class="hljs-attr">runs-on:</span> <span class="hljs-string">ubuntu-latest</span>
+    <span class="hljs-attr">container:</span> <span class="hljs-string">python:3.9-slim</span>
+    <span class="hljs-attr">steps:</span>
+	  <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Checkout</span>
+        <span class="hljs-attr">uses:</span> <span class="hljs-string">actions/checkout@v3</span>
+
+	  <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Install</span> <span class="hljs-string">dependencies</span>
+        <span class="hljs-attr">run:</span> <span class="hljs-string">|
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+</span></code></pre>
+    </details>
+    <hr>
+    <p>::page{title="Step 7: Lint with flake8"}</p>
+    <p>It is always a good idea to add quality checks to your CI pipeline. This is especially true if you are working on an open source project with many different contributors. This makes sure that everyone who contributes is following the same style guidelines.</p>
+    <p>The next step is to use <code>flake8</code> to lint the source code. Linting is checking your code for syntactical and stylistic issues. Some examples are line spacing, using spaces or tabs for indentation, locating uninitialized or undefined variables, and missing parentheses. The <code>flake8</code> library was installed as a dependency in the requirements.txt file.</p>
+    <p>The flake8 commands take a few parameters. Now, take a look at the command and the parameters:</p>
+    <pre><code class="hljs language-apache"><span class="hljs-attribute">flake8</span> service --count --select=E<span class="hljs-number">9</span>,F<span class="hljs-number">63</span>,F<span class="hljs-number">7</span>,F<span class="hljs-number">82</span> --show-source --statistics
+</code></pre>
+    <p>This command will run flake8 for the service folder of your repository. By adding the following options, you customize the linting process:</p>
+    <ul>
+      <li><em><strong><code>--count</code></strong></em> : shows the count of all warnings and errors in the result of the command</li>
+      <li><em><strong><code>--select=E9,F63,F7,F82</code></strong></em> : limits the checks to syntax errors</li>
+      <li><em><strong><code>--show-source</code></strong></em> : adds the actual line number where the error/warning is found</li>
+      <li><em><strong><code>--statistics</code></strong></em> : shows the count of each type of error and warning in the result</li>
+    </ul>
+    <pre><code class="hljs language-routeros">flake8<span class="hljs-built_in"> service </span>--count <span class="hljs-attribute">--max-complexity</span>=10 <span class="hljs-attribute">--max-line-length</span>=127 --statistics
+</code></pre>
+    <p>Unlike the first command that checks for syntax errors only, the second command will run all the available checks on the service folder of your repository.</p>
+    <h2>Your Task</h2>
+    <ol>
+      <li>
+        <p>Add a new named step after the <code>Install dependencies</code> step. Call this step <code>Lint with flake8</code>.</p>
+        <details>
+          <summary>Click here for a hint.</summary>
+          <pre><code class="hljs language-yaml"><span class="hljs-attr">steps:</span>
+  <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> {<span class="hljs-string">insert</span> <span class="hljs-string">step</span> <span class="hljs-string">name</span> <span class="hljs-string">here</span>}
+
+</code></pre>
+        </details>
+      </li>
+      <li>
+        <p>Next, you want to run the flake8 commands to lint your code. The commands are explained in detail above.</p>
+        <pre><code class="hljs language-brainfuck"><span class="hljs-comment">flake8</span> <span class="hljs-comment">service</span> --<span class="hljs-comment">count</span> --<span class="hljs-comment">select=E9</span><span class="hljs-string">,</span><span class="hljs-comment">F63</span><span class="hljs-string">,</span><span class="hljs-comment">F7</span><span class="hljs-string">,</span><span class="hljs-comment">F82</span> --<span class="hljs-comment">show</span><span class="hljs-literal">-</span><span class="hljs-comment">source</span> --<span class="hljs-comment">statistics</span>
+<span class="hljs-comment">flake8</span> <span class="hljs-comment">service</span> --<span class="hljs-comment">count</span> --<span class="hljs-comment">max</span><span class="hljs-literal">-</span><span class="hljs-comment">complexity=10</span> --<span class="hljs-comment">max</span><span class="hljs-literal">-</span><span class="hljs-comment">line</span><span class="hljs-literal">-</span><span class="hljs-comment">length=127</span> --<span class="hljs-comment">statistics</span>
+</code></pre>
+        <p>You can run inline commands using the <code>run</code> keyword with the pipe <code>|</code> operator.</p>
+        <details>
+          <summary>Click here for a hint.</summary>
+          <pre><code class="hljs language-yaml"><span class="hljs-attr">steps:</span>
+  <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Lint</span> <span class="hljs-string">with</span> <span class="hljs-string">flake8</span>
+    <span class="hljs-attr">run:</span> <span class="hljs-string">|
+      {insert first command here}
+      {insert second command here}
+</span></code></pre>
+        </details>
+      </li>
+    </ol>
+    <p>Double-check that your work matches the solution below.</p>
+    <h3>Solution</h3>
+    <details>
+      <summary>Click here for the answer.</summary>Replace the workflow.yml file with the code snippet below. You can also copy relevant parts of the code. Be sure to indent properly:
+      <pre><code class="hljs language-yaml"><span class="hljs-attr">name:</span> <span class="hljs-string">CI</span> <span class="hljs-string">workflow</span>
+
+<span class="hljs-attr">on:</span>
+  <span class="hljs-attr">push:</span>
+    <span class="hljs-attr">branches:</span> <span class="hljs-string">main</span>
+  <span class="hljs-attr">pull_request:</span>
+    <span class="hljs-attr">branches:</span> <span class="hljs-string">main</span>
+
+<span class="hljs-attr">jobs:</span>
+  <span class="hljs-attr">build:</span>
+    <span class="hljs-attr">runs-on:</span> <span class="hljs-string">ubuntu-latest</span>
+    <span class="hljs-attr">container:</span> <span class="hljs-string">python:3.9-slim</span>
+    <span class="hljs-attr">steps:</span>
+	  <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Checkout</span>
+        <span class="hljs-attr">uses:</span> <span class="hljs-string">actions/checkout@v3</span>
+
+      <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Install</span> <span class="hljs-string">dependencies</span>
+        <span class="hljs-attr">run:</span> <span class="hljs-string">|
+          python -m pip install --upgrade pip
+</span>		  <span class="hljs-string">pip</span> <span class="hljs-string">install</span> <span class="hljs-string">-r</span> <span class="hljs-string">requirements.txt</span>
+
+      <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Lint</span> <span class="hljs-string">with</span> <span class="hljs-string">flake8</span>
+        <span class="hljs-attr">run:</span> <span class="hljs-string">|
+          flake8 service --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 service --count --max-complexity=10 --max-line-length=127 --statistics
+</span>
+</code></pre>
+    </details>
+    <hr>
+    <p>::page{title="Step 8: Test Code Coverage with nosetests"}</p>
+    <p>You will use <code>nose</code> in this step to unit test the source code. Nose is configured via the included setup.cfg file to automatically include the flags --with-spec and --spec-color so that red-green-refactor is meaningful. If you are in a command shell that supports colors, passing tests will be green and failing tests will be red.</p>
+    <p>Nose is also configured to automatically run the coverage tool, and you should see a percentage of coverage report at the end of your tests.</p>
+    <h2>Your Task</h2>
+    <ol>
+      <li>
+        <p>Add a new named step after the <code>Lint with flake8</code> step. Call this step <code>Run unit tests with nose</code>.</p>
+        <details>
+          <summary>Click here for a hint.</summary>
+          <pre><code class="hljs language-yaml"><span class="hljs-attr">steps:</span>
+  <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> {<span class="hljs-string">insert</span> <span class="hljs-string">step</span> <span class="hljs-string">name</span> <span class="hljs-string">here</span>}
+
+</code></pre>
+        </details>
+      </li>
+      <li>
+        <p>Next, you want to run the nosetests command to test your code and report on code coverage.</p>
+        <pre><code class="hljs language-brainfuck"><span class="hljs-comment">nosetests</span> <span class="hljs-literal">-</span><span class="hljs-comment">v</span> --<span class="hljs-comment">with</span><span class="hljs-literal">-</span><span class="hljs-comment">spec</span> --<span class="hljs-comment">spec</span><span class="hljs-literal">-</span><span class="hljs-comment">color</span> --<span class="hljs-comment">with</span><span class="hljs-literal">-</span><span class="hljs-comment">coverage</span> --<span class="hljs-comment">cover</span><span class="hljs-literal">-</span><span class="hljs-comment">package=app</span>
+</code></pre>
+        <p>Since you are running a single command, you do not have to use the pipe <code>|</code> operator with <code>run</code>.</p>
+        <details>
+          <summary>Click here for a hint.</summary>
+          <pre><code class="hljs language-yaml"><span class="hljs-attr">steps:</span>
+  <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Run</span> <span class="hljs-string">unit</span> <span class="hljs-string">tests</span> <span class="hljs-string">with</span> <span class="hljs-string">nose</span>
+    <span class="hljs-attr">run:</span> {<span class="hljs-string">insert</span> <span class="hljs-string">command</span> <span class="hljs-string">here</span>}
+</code></pre>
+        </details>
+      </li>
+    </ol>
+    <p>Double-check that your work matches the solution below.</p>
+    <h3>Solution</h3>
+    <details>
+      <summary>Click here for the answer.</summary>Replace the workflow.yml file with the code snippet below. You can also copy relevant parts of the code. Be sure to indent properly:
+      <pre><code class="hljs language-yaml"><span class="hljs-attr">name:</span> <span class="hljs-string">CI</span> <span class="hljs-string">workflow</span>
+
+<span class="hljs-attr">on:</span>
+  <span class="hljs-attr">push:</span>
+    <span class="hljs-attr">branches:</span> [ <span class="hljs-string">"main"</span> ]
+  <span class="hljs-attr">pull_request:</span>
+    <span class="hljs-attr">branches:</span> [ <span class="hljs-string">"main"</span> ]
+
+<span class="hljs-attr">jobs:</span>
+  <span class="hljs-attr">build:</span>
+    <span class="hljs-attr">runs-on:</span> <span class="hljs-string">ubuntu-latest</span>
+    <span class="hljs-attr">container:</span> <span class="hljs-string">python:3.9-slim</span>
+    <span class="hljs-attr">steps:</span>
+	  <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Checkout</span>
+        <span class="hljs-attr">uses:</span> <span class="hljs-string">actions/checkout@v3</span>
+
+      <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Install</span> <span class="hljs-string">dependencies</span>
+        <span class="hljs-attr">run:</span> <span class="hljs-string">|
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+</span>
+	  <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Lint</span> <span class="hljs-string">with</span> <span class="hljs-string">flake8</span>
+        <span class="hljs-attr">run:</span> <span class="hljs-string">|
+          flake8 service --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 service --count --max-complexity=10 --max-line-length=127 --statistics
+</span>
+      <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Run</span> <span class="hljs-string">unit</span> <span class="hljs-string">tests</span> <span class="hljs-string">with</span> <span class="hljs-string">nose</span>
+        <span class="hljs-attr">run:</span> <span class="hljs-string">nosetests</span> <span class="hljs-string">-v</span> <span class="hljs-string">--with-spec</span> <span class="hljs-string">--spec-color</span> <span class="hljs-string">--with-coverage</span> <span class="hljs-string">--cover-package=app</span>
+
+</code></pre>
+    </details>
+    <hr>
+    <p>::page{title="Step 9: Push Code to GitHub"}</p>
+    <p>To test the workflow and the CI pipeline, you need to commit the changes and push your branch back to the GitHub repository. As described earlier, each new push to the main branch should trigger the workflow.</p>
+    <h2>Your Task</h2>
+    <ol>
+      <li>
+        <p>Configure the Git account with your email and name using the <code>git config --global user.email</code> and <code>git config --global user.name</code> commands.</p>
+        <details>
+          <summary>Click here for a hint.</summary>
+          <p>Open the terminal and configure your email:</p>
+          <pre><code class="hljs language-lua">git <span class="hljs-built_in">config</span> <span class="hljs-comment">--global user.email "you@example.com"</span>
+</code></pre>
+          <p>Open the terminal and configure your user name</p>
+          <pre><code class="hljs language-verilog">git <span class="hljs-keyword">config</span> --<span class="hljs-keyword">global</span> user<span class="hljs-variable">.name</span> <span class="hljs-string">"Your Name"</span>
+</code></pre>
+        </details>
+      </li>
+      <li>
+        <p>The next step is to stage all the changes you made in the previous exercises and push them to your forked repo on GitHub.</p>
+        <details>
+          <summary>Click here for a hint.</summary>
+          <p>You can use the following commands to commit your changes to staging and then push to your forked repository:</p>
+          <pre><code class="hljs language-shell">git add -A
+git commit -m "COMMIT MESSAGE"
+git push
+</code></pre>
+        </details>
+      </li>
+    </ol>
+    <p>Your output should look similar to the image below:</p>
+    <h3>Solution</h3>
+    <p>
+      <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0215EN-SkillsNetwork/images/actions_github_push.png" alt="">
+    </p>
+    <hr>
+    <p>::page{title="Step 10: Run the Workflow"}</p>
+    <p>You can run the workflow now. Open the <strong>Actions</strong> tab in the forked repository in your GitHub account. Click the <em><strong>CI workflow</strong></em> action. Pushing changes in the previous step should have triggered a build action and it should be visible in the Actions tab.</p>
+    <p>
+      <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0215EN-SkillsNetwork/images/actions_workflow_summary.png" alt="">
+    </p>
+    <p>Click the most recent <code>workflow run</code> to open the details page. You should see your workflow completed successfully:</p>
+    <p>
+      <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0215EN-SkillsNetwork/images/actions_workflow_jobs.png" alt="">
+    </p>
+    <p>You can now click the <code>build</code> job to see the logs for each step:</p>
+    <p>
+      <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0215EN-SkillsNetwork/images/actions_workflow_jobs_steps.png" alt="">
+    </p>
+    <p>Spend some time here to expand each section:</p>
+    <p>
+      <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0215EN-SkillsNetwork/images/actions_workflow_jobs_steps_logs.png" alt="">
+    </p>
+    <p>If the workflow completes, you will see the <code>Complete job</code> step at the end of the build job logs.</p>
+    <p>
+      <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0215EN-SkillsNetwork/images/actions_workflow_jobs_steps_finished.png" alt="">
+    </p>
+    <p>::page{title="Conclusion"}</p>
+    <p>Congratulations! You are now able to use GitHub Actions to create workflows for the CI pipeline.</p>
+    <p>In this lab, you added Continuous Integration to your application. As a result, your application is automatically built and tested when you commit your code to the GitHub repository.</p>
+    <h2>Author(s)</h2>
+    <p>
+      Upkar Lidder
+      Tapas Mandal
+    </p>
+    <h3>Other Contributor(s)</h3>
+    <p>John Rofrano</p>
+    <h2>Changelog</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Version</th>
+          <th>Changed by</th>
+          <th>Change Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>2022-06-19</td>
+          <td>0.1</td>
+          <td>Tapas Mandal</td>
+          <td>Created new instructions for CI/CD project</td>
+        </tr>
+        <tr>
+          <td>2022-06-21</td>
+          <td>0.2</td>
+          <td>Tapas Mandal</td>
+          <td>Adding few improvements as per review comments</td>
+        </tr>
+        <tr>
+          <td>2022-08-05</td>
+          <td>0.3</td>
+          <td>Beth Larsen</td>
+          <td>Initial QA pass</td>
+        </tr>
+        <tr>
+          <td>2022-08-11</td>
+          <td>0.4</td>
+          <td>Captain Fedora</td>
+          <td>Revised version with new instructions and fixes</td>
+        </tr>
+        <tr>
+          <td>2022-08-12</td>
+          <td>0.5</td>
+          <td>Steve Ryan</td>
+          <td>ID Review</td>
+        </tr>
+        <tr>
+          <td>2022-08-12</td>
+          <td>0.4</td>
+          <td>Captain Fedora</td>
+          <td>Fixes from ID Review</td>
+        </tr>
+        <tr>
+          <td>2022-08-15</td>
+          <td>0.6</td>
+          <td>Beth Larsen</td>
+          <td>Second QA pass</td>
+        </tr>
+        <tr>
+          <td>2022-08-15</td>
+          <td>0.7</td>
+          <td>Steve Ryan</td>
+          <td>Fixed all 'workflow.yml' instances</td>
+        </tr>
+        <tr>
+          <td>2022-08-15</td>
+          <td>0.8</td>
+          <td>Steve Ryan</td>
+          <td>Fixed all missing periods</td>
+        </tr>
+        <tr>
+          <td>2022-08-15</td>
+          <td>0.9</td>
+          <td>John Rofrano</td>
+          <td>Added minor additions for clarity</td>
+        </tr>
+        <tr>
+          <td>2022-08-15</td>
+          <td>1.0</td>
+          <td>Steve Ryan</td>
+          <td>Final minor typo fixes</td>
+        </tr>
+        <tr>
+          <td>2022-08-15</td>
+          <td>1.0</td>
+          <td>Captain Fedora</td>
+          <td>Renamed images</td>
+        </tr>
+      </tbody>
+    </table>
+    <h2></h2>
+    <h3 align="center">© IBM Corporation 2022. All rights reserved.</h3>
+    <h3></h3>
+    <script>window.addEventListener('load', function() {
+snFaculty.inject();
+});</script>
+    <script src="https://skills-network-assets.s3.us.cloud-object-storage.appdomain.cloud/scripts/inject.43989f87.js"></script>
+    <script src="https://unpkg.com/@highlightjs/cdn-assets@10.7.1/highlight.min.js"></script>
+    <script src="https://unpkg.com/highlightjs-badge@0.1.9/highlightjs-badge.min.js"></script>
+  </body>
+</html>

@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://unpkg.com/@highlightjs/cdn-assets@10.7.1/styles/default.min.css">
+  </head>
+  <body>
+    <p>::page{title="Integrating Code Coverage"}</p>
+    <p><strong>Estimated time needed:</strong> 30 minutes</p>
+    <p>Welcome to the hands-on lab for <strong>Integrating Code Coverage</strong>. Code coverage is a measure of how much of your code has been executed. It is typically presented as a report that shows the percentage of the code that has been executed. For automated testing, the report does not measure the quality of tests, only whether your code is executed by the tests. It is especially useful to check that critical or high-risk areas of your code are covered because they should receive the most rigorous testing.</p>
+    <p>In this lab, you will learn how to integrate Codecov with your GitHub repository using GitHub Actions to generate coverage reports every time you push changes or make a pull request.</p>
+    <h2>Learning Objectives</h2>
+    <p>After completing this lab, you will be able to:</p>
+    <ul>
+      <li>Summarize Codecov</li>
+      <li>Use GitHub Actions to add a step to your workflow</li>
+      <li>Run tests and generate a coverage report</li>
+      <li>Review the Codecov report</li>
+    </ul>
+    <h2>Prerequisites</h2>
+    <p>You will need the following to complete the exercises in this lab:</p>
+    <ul>
+      <li>Familiarity with the syntax for GitHub Actions</li>
+      <li>A basic understanding of nosetests</li>
+      <li>A GitHub account</li>
+      <li>An intermediate-level knowledge of CLIs</li>
+    </ul>
+    <p>::page{title="Set Up the Lab Environment"}</p>
+    <p>You have a little preparation to do before you can start the lab.</p>
+    <h2>Open a Terminal</h2>
+    <p>Open a terminal window by using the menu in the editor: Terminal > New Terminal.</p>
+    <p>
+      <img src="http://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0241EN-SkillsNetwork/labs/module2/images/01_terminal.png" alt="">
+    </p>
+    <p>In the terminal, if you are not already in the /home/projects folder, change to your project folder now.</p>
+    <pre><code class="hljs language-shell">cd /home/project
+</code></pre>
+    <p>Clone the GitHub Actions repo that was created/forked in the previous module. To clone the repo, you need to authenticate with GitHub. Follow the steps below to authenticate and clone the repo.</p>
+    <h2>Authenticate with GitHub Host</h2>
+    <pre><code class="hljs language-shell">gh auth login
+</code></pre>
+    <p>Follow these guidelines to authenticate:</p>
+    <blockquote>
+      <p>
+        What account do you want to log into? GitHub.com
+        What is your preferred protocol for Git operations? HTTPS
+        Authenticate Git with your GitHub credentials.
+        How would you like to authenticate GitHub CLI? Paste an authentication token.
+        Paste your authentication token: ****************************************
+        You will be logged into GitHub as your account user.
+      </p>
+    </blockquote>
+    <h2>Fork and Clone the Reference Repo</h2>
+    <pre><code class="hljs language-shell">gh repo clone wtecc-CICD_PracticeCode
+</code></pre>
+    <p>
+      Your output should look similar to the image below:
+      
+      <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0215EN-SkillsNetwork/images/screenshot-at-jun-21-23-52-03.png" alt="">
+    </p>
+    <p>::page{title="Step 1: Summarize codecov"}</p>
+    <p>Code coverage tools incentivize developers to write tests and increase coverage. While writing tests, the developer may discover new bugs or syntax issues in the source code that are important to resolve before distributing the application.</p>
+    <p>Codecov takes coverage to the next level. Unlike open source and paid products, codecov focuses on integration and promoting healthy pull requests. Codecov delivers or "injects" coverage metrics directly into the modern workflow to promote more code coverage, especially in pull requests where new features and bug fixes commonly occur.</p>
+    <p>Codecov action currently supports five inputs from the user: <code>token</code>,<code>files</code>,<code>flags</code>,<code>name</code> , and <code>fail_ci_if_error</code>. These inputs, along with their descriptions and usage contexts, are listed in the table below:</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Input</th>
+          <th>Description</th>
+          <th>Usage</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>commit_parent</td>
+          <td>The commit SHA of the parent for which you are uploading coverage. If not present, the parent will be determined using the API of your repository provider. When using the repository provider's API, the parent is determined via finding the closest ancestor to the commit.</td>
+          <td>Optional</td>
+        </tr>
+        <tr>
+          <td>directory</td>
+          <td>Directory to search for coverage reports.</td>
+          <td>Optional</td>
+        </tr>
+        <tr>
+          <td>dry_run</td>
+          <td>Does not upload files to Codecov.</td>
+          <td>Optional</td>
+        </tr>
+        <tr>
+          <td>env_vars</td>
+          <td>Environment variables to tag the upload with. Multiple env variables can be separated with commas (e.g. OS,PYTHON).</td>
+          <td>Optional</td>
+        </tr>
+        <tr>
+          <td>fail_ci_if_error</td>
+          <td>Specifies if the CI pipeline should fail when Codecov runs into errors during upload. Defaults to false.</td>
+          <td>Optional</td>
+        </tr>
+        <tr>
+          <td>files</td>
+          <td>Comma-separated paths to the coverage report(s).</td>
+          <td>Optional</td>
+        </tr>
+        <tr>
+          <td>flags</td>
+          <td>Flags the upload to group coverage metrics (unittests, uitests, etc.). Multiple flags are separated by a comma (ui,chrome).</td>
+          <td>Optional</td>
+        </tr>
+        <tr>
+          <td>functionalities</td>
+          <td>Toggles functionalities.</td>
+          <td>Optional</td>
+        </tr>
+        <tr>
+          <td>gcov</td>
+          <td>Runs with gcov support.</td>
+          <td>Optional</td>
+        </tr>
+        <tr>
+          <td>gcov_args</td>
+          <td>Extra arguments to pass to gcov.</td>
+          <td>Optional</td>
+        </tr>
+        <tr>
+          <td>gcov_ignore</td>
+          <td>Paths to ignore during gcov gathering.</td>
+          <td>Optional</td>
+        </tr>
+        <tr>
+          <td>gcov_include</td>
+          <td>Paths to include during gcov gathering.</td>
+          <td>Optional</td>
+        </tr>
+        <tr>
+          <td>move_coverage_to_trash</td>
+          <td>Moves discovered coverage reports to the trash.</td>
+          <td>Optional</td>
+        </tr>
+        <tr>
+          <td>name</td>
+          <td>Custom defined name for the upload.</td>
+          <td>Optional</td>
+        </tr>
+        <tr>
+          <td>network</td>
+          <td>Disables uploading the file network.</td>
+          <td>Optional</td>
+        </tr>
+        <tr>
+          <td>override_branch</td>
+          <td>Specifies the branch name.</td>
+          <td>Optional</td>
+        </tr>
+        <tr>
+          <td>override_build</td>
+          <td>Specifies the build number.</td>
+          <td>Optional</td>
+        </tr>
+        <tr>
+          <td>override_commit</td>
+          <td>Specifies the commit SHA.</td>
+          <td>Optional</td>
+        </tr>
+        <tr>
+          <td>override_pr</td>
+          <td>Specifies the pull request number.</td>
+          <td>Optional</td>
+        </tr>
+        <tr>
+          <td>override_tag</td>
+          <td>Specifies the git tag.</td>
+          <td>Optional</td>
+        </tr>
+        <tr>
+          <td>path_to_write_report</td>
+          <td>Writes the upload file to the path before uploading.</td>
+          <td>Optional</td>
+        </tr>
+        <tr>
+          <td>root_dir</td>
+          <td>Used when not in git/hg project to identify project root directory.</td>
+          <td>Optional</td>
+        </tr>
+        <tr>
+          <td>slug</td>
+          <td>Specifies the slug manually. (Enterprise use)</td>
+          <td>Optional</td>
+        </tr>
+        <tr>
+          <td>token</td>
+          <td>Used to authorize coverage report uploads.</td>
+          <td>Required for private repos</td>
+        </tr>
+        <tr>
+          <td>url</td>
+          <td>Changes the upload host. (Enterprise use)</td>
+          <td>Optional</td>
+        </tr>
+        <tr>
+          <td>verbose</td>
+          <td>Specifies whether the Codecov output should be verbose.</td>
+          <td>Optional</td>
+        </tr>
+        <tr>
+          <td>version</td>
+          <td>Specifies which version of Codecov uploader to use. Defaults to the latest.</td>
+          <td>Optional</td>
+        </tr>
+        <tr>
+          <td>working-directory</td>
+          <td>Directory in which to execute codecov.sh.</td>
+          <td>Optional</td>
+        </tr>
+        <tr>
+          <td>xcode</td>
+          <td>Runs with xcode support.</td>
+          <td>Optional</td>
+        </tr>
+        <tr>
+          <td>xcode_archive_path</td>
+          <td>Specifies the xcode archive path. Likely specified as the -resultBundlePath and should end in .xcresult.</td>
+          <td>Optional</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>::page{title="Step 2: Configure GitHub Actions"}</p>
+    <p>You are now going to add a new step in the workflow, which will upload the Coverage XML report to Codecov.</p>
+    <p>To integrate codecov with your actions pipeline, specify the name of this repository with a tag number (@v2 is recommended) as a step within your <code>workflow.yml</code> file.</p>
+    <p>If you have a private repository, this action also requires you to provide an upload token from codecov.io (tip: to avoid exposing your token, store it as a secret). Optionally, you can choose to include up to four additional inputs to customize the upload context. For public repositories, no token is needed inside your <code>.github/workflows/workflow.yml</code> file.</p>
+    <h2>Your Task</h2>
+    <p>Add a new step in the workflow.yml using codecov-action@v2, which will upload the Coverage XML report to Codecov.</p>
+    <h2>Solution</h2>
+    <details>
+      <summary>Click here for the answer</summary>Copy the below code and add it in workflow.yml as a step under build job. Be sure to indent properly:
+      <pre><code class="hljs language-yaml"><span class="hljs-attr">steps:</span>
+<span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">Upload</span> <span class="hljs-string">code</span> <span class="hljs-string">coverage</span>
+<span class="hljs-bullet">-</span> <span class="hljs-attr">uses:</span> <span class="hljs-string">codecov/codecov-action@v2</span>
+  <span class="hljs-attr">with:</span>
+		<span class="hljs-attr">token:</span> <span class="hljs-string">${{</span> <span class="hljs-string">secrets.CODECOV_TOKEN</span> <span class="hljs-string">}}</span> <span class="hljs-comment"># not required for public repos</span>
+		<span class="hljs-attr">files:</span> <span class="hljs-string">./coverage1.xml</span>
+		<span class="hljs-attr">flags:</span> <span class="hljs-string">unittests</span>
+		<span class="hljs-attr">fail_ci_if_error:</span> <span class="hljs-literal">true</span> <span class="hljs-comment"># optional (default = false)</span>
+		<span class="hljs-attr">verbose:</span> <span class="hljs-literal">true</span> <span class="hljs-comment"># optional (default = false)</span>
+		<span class="hljs-attr">version:</span> <span class="hljs-string">"v0.1.13"</span>
+</code></pre>
+    </details>
+    <blockquote>
+      <p>Note: This assumes that you have set your codecov token inside Settings > Secrets as CODECOV_TOKEN. If not, you can get an upload token for your specific repo on codecov.io. Keep in mind that secrets are not available to forks of repositories.</p>
+    </blockquote>
+    <p>::page{title="Step 3: Run the Test and Generate a Coverage Report"}</p>
+    <p>The workflow created in the previous step triggers when you push code to the master branch in the repository, or create/update a pull request. It contains a build job that has 5 steps:</p>
+    <ul>
+      <li>Check out code</li>
+      <li>Install Python dependencies</li>
+      <li>Run linting</li>
+      <li>Run unit tests with nose</li>
+      <li>Upload code coverage</li>
+    </ul>
+    <p>Commit and push your workflow definition.</p>
+    <p>
+      Go to the Actions tab in GitHub and select the workflow of the latest commit.
+      Notice that <code>Run unit tests with nose</code> generates the coverage report and the <code>Upload code coverage</code> step uploads the report to Codecov.
+    </p>
+    <p>
+      <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0215EN-SkillsNetwork/images/screenshot-at-jun-20-15-44-19.png" alt="">
+    </p>
+    <p>::page{title="Step 4: View the Codecov Report"}</p>
+    <p>
+      When the new workflow finishes, navigate to the repository in the Codecov dashboard and select the latest commit.
+      Viewing the <code>Upload code coverage</code> logs, you will notice a resultURL field at the end. Use that link to access the coverage report that is uploaded on Codecov.
+    </p>
+    <p>
+      <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0215EN-SkillsNetwork/images/screenshot-at-jun-19-22-01-18.png" alt="">
+    </p>
+    <p>
+      <img src="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-CD0215EN-SkillsNetwork/images/screenshot-at-jun-19-22-01-54.png" alt="">
+    </p>
+    <p>::page{title="Conclusion"}</p>
+    <p>Congratulations! You created a workflow that generates a code coverage report.</p>
+    <p>In this lab, you integrated Codecov with your GitHub repository using GitHub Actions to generate coverage reports every time you push changes or make a pull request.</p>
+    <h2>Author(s)</h2>
+    <p>Tapas Mandal</p>
+    <h3>Other Contributor(s)</h3>
+    <p>John Rofrano</p>
+    <h2>Changelog</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Version</th>
+          <th>Changed by</th>
+          <th>Change Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>2022-06-20</td>
+          <td>0.1</td>
+          <td>Tapas Mandal</td>
+          <td>Created new instructions for Code Coverage Lab</td>
+        </tr>
+        <tr>
+          <td>2022-06-22</td>
+          <td>0.2</td>
+          <td>Tapas Mandal</td>
+          <td>Updated the reference repo and added new screenshots</td>
+        </tr>
+        <tr>
+          <td>2022-08-05</td>
+          <td>0.3</td>
+          <td>Beth Larsen</td>
+          <td>Initial QA pass</td>
+        </tr>
+        <tr>
+          <td>2022-08-05</td>
+          <td>0.4</td>
+          <td>Steve Ryan</td>
+          <td>ID Review</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+    <script>window.addEventListener('load', function() {
+snFaculty.inject();
+});</script>
+    <script src="https://skills-network-assets.s3.us.cloud-object-storage.appdomain.cloud/scripts/inject.43989f87.js"></script>
+    <script src="https://unpkg.com/@highlightjs/cdn-assets@10.7.1/highlight.min.js"></script>
+    <script src="https://unpkg.com/highlightjs-badge@0.1.9/highlightjs-badge.min.js"></script>
+  </body>
+</html>
