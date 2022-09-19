@@ -1,0 +1,5 @@
+# Dependencies for this lab
+nose
+pinocchio
+coverage
+pylint

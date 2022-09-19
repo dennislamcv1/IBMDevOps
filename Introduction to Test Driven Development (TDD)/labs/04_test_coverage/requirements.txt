@@ -1,0 +1,7 @@
+# Dependencies for this lab
+Flask
+Flask-SQLAlchemy
+nose
+pinocchio
+coverage
+pylint

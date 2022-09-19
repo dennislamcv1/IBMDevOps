@@ -1,0 +1,45 @@
+{
+    "GOOD_SEARCH": {
+        "searchType": "Title",
+        "expression": "Bambi",
+        "results": [{"id": "tt1375666", "resultType": "Movie", "image": null, "title": "Babmi", "description": "Disney movie about a baby dear"}],
+        "errorMessage": null
+    },
+    "INVALID_API": {
+        "searchType": "Title",
+        "expression": "Bambi",
+        "results": null,
+        "errorMessage": "Invalid API Key"
+    },
+    "MOVIE_INVALID": {
+        "imDbId": null,
+        "title": null,
+        "fullTitle": null,
+        "type": null,
+        "year": null,
+        "items": null,
+        "errorMessage": "Invalid request."
+    },
+    "GOOD_REVIEW": {
+        "imDbId": "tt1375666",
+        "title": "Bambi",
+        "fullTitle": "Bambi",
+        "type": "Movie",
+        "year": "1942",
+        "items": [{"username": "mickey","userUrl": null,"reviewLink": null,"warningSpoilers": true,"date": "2008-04-01","rate": "5","helpful": null,"title": "Tear jerker","content": "This movie will make you cry"}],
+        "errorMessage": null
+    },
+    "GOOD_RATING": {
+        "imDbId": "tt1375666",
+        "title": "Bambi",
+        "fullTitle": "Bambi",
+        "type": "Movie",
+        "year": "1942",
+        "imDb": 5,
+        "metacritic": 4,
+        "theMovieDb": 4,
+        "rottenTomatoes": 5,
+        "filmAffinity": 3,
+        "errorMessage": null
+    }
+}
